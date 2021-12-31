@@ -55,6 +55,7 @@
     [view loadFileURL:url allowingReadAccessToURL:path];
     
     _bridgeOperator = std::make_shared<WKJSBridgeOperator>(view);
+    JSBridge::getInstance().bridgeOperator = _bridgeOperator;
     
     [self performSelector:@selector(registerTestObject) withObject:nil afterDelay:1];
     
@@ -66,7 +67,7 @@
     _test = std::make_shared<TestJSBinding>();
     auto ptr = reinterpret_cast<uintptr_t>(_test.get());
     
-    std::stringstream ss("window.bridgets.registerTestJSBinding(", std::ios_base::app |std::ios_base::out);
+    std::stringstream ss("App.getTestJSBinding(", std::ios_base::app |std::ios_base::out);
     ss << ptr << ");";
     
     _bridgeOperator->send(ss.str().c_str());

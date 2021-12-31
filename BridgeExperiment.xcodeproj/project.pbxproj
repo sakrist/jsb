@@ -41,6 +41,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		35F2FD3A277DDD2900344720 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		D25785BF277F5BC800F4B3E0 /* bind.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bind.cpp; sourceTree = "<group>"; };
+		D25785C0277F5BC800F4B3E0 /* val.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = val.hpp; sourceTree = "<group>"; };
+		D25785C1277F5BC800F4B3E0 /* wire.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = wire.hpp; sourceTree = "<group>"; };
+		D25785C2277F5BC800F4B3E0 /* bind.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = bind.hpp; sourceTree = "<group>"; };
 		D28CDDD6277DD797009901AC /* BridgeExperiment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BridgeExperiment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D28CDDD9277DD797009901AC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D28CDDDA277DD797009901AC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -98,9 +103,22 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D25785BE277F5BC800F4B3E0 /* emsdk */ = {
+			isa = PBXGroup;
+			children = (
+				D25785BF277F5BC800F4B3E0 /* bind.cpp */,
+				D25785C2277F5BC800F4B3E0 /* bind.hpp */,
+				D25785C0277F5BC800F4B3E0 /* val.hpp */,
+				D25785C1277F5BC800F4B3E0 /* wire.hpp */,
+			);
+			path = emsdk;
+			sourceTree = "<group>";
+		};
 		D28CDDCD277DD797009901AC = {
 			isa = PBXGroup;
 			children = (
+				35F2FD3A277DDD2900344720 /* README.md */,
+				D25785BE277F5BC800F4B3E0 /* emsdk */,
 				D28CDDD8277DD797009901AC /* BridgeExperiment */,
 				D28CDDEF277DD7A0009901AC /* BridgeExperimentTests */,
 				D28CDDFA277DD7A0009901AC /* BridgeExperimentUITests */,
@@ -475,7 +493,7 @@
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = DHKZ7WR43P;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -495,7 +513,7 @@
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = DHKZ7WR43P;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

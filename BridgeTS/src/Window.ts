@@ -1,7 +1,10 @@
 
-import { IBridgeTS } from "./IBridgeTS"
+import { BridgeTS } from "./BridgeTS"
+import { App } from "./App"
 
 export interface Window {
     webkit?: any;
-    bridgets:IBridgeTS;
+    bridgets:BridgeTS;
+    app:App;
 }
+

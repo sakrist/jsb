@@ -1,9 +1,7 @@
 // export default
-import { IBridgeTS } from "./IBridgeTS"
-import { TestJSBinding } from "./TestJSBinding";
 import { Window } from "./Window"
 
-export class BridgeTS implements IBridgeTS {
+export class BridgeTS {
 
     private static instance: BridgeTS;
     private constructor() { }
@@ -20,10 +18,4 @@ export class BridgeTS implements IBridgeTS {
   
       (window as unknown as Window).webkit.messageHandlers.BridgeTS.postMessage(message);
     }
-
-    public registerTestJSBinding(objectPtr:BigInt) {
-        let object = new TestJSBinding(objectPtr);
-        object.getNumber();
-        console.log(object);
-      }
   }

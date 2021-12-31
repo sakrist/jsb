@@ -28,7 +28,11 @@ public:
         std::cout << json << std::endl;
         
         // TODO: subclass and implement here JSInvokeMessage
-        JSInvokeMessage me = { json["object"], json["op"] };
+        
+        std::string callback = json["callback"].is_null() ? "" : json["callback"];
+        std::string callback_id = json["callback_id"].is_null() ? "" : json["callback_id"];
+        
+        JSInvokeMessage me = { json["object"], json["function"], callback, callback_id };
         JSBridge::getInstance().recive(me);
     }
     

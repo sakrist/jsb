@@ -1,7 +1,7 @@
 
 export class JSBinding {
-    public constructor(ptrr: BigInt) {
-        this.ptr = ptrr;
-    } 
+    public constructor(ptrObject: BigInt) {
+        this.ptr = ptrObject;
+    }
     protected ptr: BigInt;
 }

@@ -23,6 +23,14 @@ class JSBinding;
 struct JSInvokeMessage {
     uintptr_t object;
     std::string function;
+    std::string callback;
+    std::string callback_id;
+};
+
+class JSBridgeOperator {
+public:
+    virtual void send(const char* message) const = 0;
+    virtual void recive(const char* message) const = 0;
 };
 
 static inline void JSBindingInvokerFunction(JSBinding* object, const JSInvokeMessage& message);
@@ -44,24 +52,14 @@ public:
         }
     }
     
+    std::shared_ptr<JSBridgeOperator> bridgeOperator; 
+    
 private:
     friend class JSBinding;
     JSBridge() {};
     std::unordered_map<uintptr_t, JSBinding*> _register;
 };
 
-
-class JSBridgeOperator {
-public:
-    
-    virtual void send(const char* message) const = 0;
-
-    virtual void recive(const char* message) const {
-        // TODO: subclass and implement here JSInvokeMessage
-//        JSInvokeMessage me = { json["object"], json["op"] };
-//        JSBridge::getInstance().recive(me);
-    }
-};
 
 /// not used ----
 template<typename T>
@@ -96,10 +94,22 @@ struct FunctionInvoker<std::function<R(Args...)>> : public FunctionInvokerBase {
     std::string name;
     std::function<R(Args...)>  function;
     
+    template<typename T>
+    void response(T value, const JSInvokeMessage& message) const {
+        if (!message.callback.empty() && !message.callback_id.empty()) {
+            
+            std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
+            ss << "(\"" << message.callback_id << "\", " << value << ");";
+            
+            JSBridge::getInstance().bridgeOperator->send(ss.str().c_str());
+        }
+    }
+    
     void invoke(const JSInvokeMessage& message) const override {
         
         if constexpr (sizeof...(Args) == 0) {
             auto value = function();
+            response(value, message);
         }
         if constexpr (sizeof...(Args) == 1) {
             function(1);
