@@ -55,13 +55,29 @@
     [view loadFileURL:url allowingReadAccessToURL:path];
     
     _bridgeOperator = std::make_shared<WKJSBridgeOperator>(view);
-    JSBridge::getInstance().bridgeOperator = _bridgeOperator;
+    jsbridge::JSBridge::getInstance().bridgeOperator = _bridgeOperator;
     
     [self performSelector:@selector(registerTestObject) withObject:nil afterDelay:1];
+    
     
     // Do any additional setup after loading the view.
     
 }
+
+float add(int a, int b) {
+    return a + b;
+}
+
+JSBridge_BINDINGS(my_module) {
+    jsbridge::function("add", &add);
+    
+    jsbridge::class_<TestJSBinding>("TestJSBinding")
+        .function("setNumber", &TestJSBinding::setNumber)
+        .function("getNumber", &TestJSBinding::getNumber)
+        .function("setNumber2", &TestJSBinding::setNumber2);
+}
+
+
 
 - (void) registerTestObject {
     _test = std::make_shared<TestJSBinding>();

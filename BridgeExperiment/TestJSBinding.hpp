@@ -11,19 +11,20 @@
 #include <stdio.h>
 #include "JSBridge.hpp"
 
-class TestJSBinding : public JSBinding {
+
+class TestJSBinding  {
 public:
     
-    TestJSBinding() : JSBinding() {
-        registerFunction("getNumber", &TestJSBinding::getNumber, this);
-        registerFunction("setNumber", &TestJSBinding::setNumber, this);
-    }
+    TestJSBinding() { }
     
     ~TestJSBinding() {}
     
     int getNumber() {
-        i++;
         return i;
+    }
+    
+    void setNumber2(int newi, int newi2) {
+        i = newi + newi2;
     }
     
     void setNumber(int newi) {

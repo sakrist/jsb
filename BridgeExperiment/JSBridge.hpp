@@ -15,17 +15,12 @@
 #include <sstream>
 #include <unordered_map>
 #include <functional>
+#include <variant>
 
 using namespace std::placeholders;
 
-class JSBinding;
+namespace jsbridge {
 
-struct JSInvokeMessage {
-    uintptr_t object;
-    std::string function;
-    std::string callback;
-    std::string callback_id;
-};
 
 class JSBridgeOperator {
 public:
@@ -33,7 +28,32 @@ public:
     virtual void recive(const char* message) const = 0;
 };
 
-static inline void JSBindingInvokerFunction(JSBinding* object, const JSInvokeMessage& message);
+
+class JSBridge;
+using JSArg = std::variant<char, short, int, long, uintptr_t, float, double>;
+
+struct JSInvokeMessage {
+    uintptr_t object;
+    std::string class_id;
+    std::string function;
+    std::string callback;
+    std::string callback_id;
+    
+    int args_count{ 0 };
+    JSArg args[3];
+};
+
+struct FunctionInvokerBase {
+    virtual void invoke(const JSInvokeMessage& message) const {};
+};
+using InvokersMap = std::unordered_map<std::string, std::unique_ptr<FunctionInvokerBase>>;
+
+class base_class_ {
+protected:
+    InvokersMap _invokers;
+    friend class JSBridge;
+};
+
 
 class JSBridge {
 public:
@@ -45,135 +65,161 @@ public:
     JSBridge(const JSBridge&) = delete;
     void operator=(const JSBridge&) = delete;
     
-    void recive(const JSInvokeMessage& message) const {
-        auto objIt = _register.find(message.object);
-        if (objIt != _register.end()) {
-            JSBindingInvokerFunction(objIt->second, message);
+    void recive(const JSInvokeMessage& message) const noexcept(false) {
+        if (message.object == 0) {
+            _recive(invokers, message);
+        } else {
+            auto objIt = classes.find(message.class_id);
+            if (objIt != classes.end()) {
+                _recive(objIt->second->_invokers, message);
+            } else {
+                std::stringstream ss("Failed to find class id ", std::ios_base::app |std::ios_base::out);
+                ss << message.class_id << std::endl;
+                throw std::runtime_error(ss.str());
+            }
         }
     }
     
     std::shared_ptr<JSBridgeOperator> bridgeOperator; 
     
-private:
-    friend class JSBinding;
-    JSBridge() {};
-    std::unordered_map<uintptr_t, JSBinding*> _register;
-};
-
-
-/// not used ----
-template<typename T>
-struct Deducer;
-
-template<typename ReturnType, typename ClassType, typename... Args>
-struct Deducer<ReturnType(ClassType::*)(Args...)> {
-    using type = ReturnType(Args...);
-    using rtype = ReturnType;
-    using classtype = ClassType;
-    static constexpr size_t n_args = sizeof...(Args);
+    // Module invokers
+    InvokersMap invokers;
+    std::unordered_map<std::string, std::unique_ptr<base_class_>> classes;
     
-    template <size_t i>
-    struct arg {
-        using type = typename std::tuple_element<i, std::tuple<Args...>>::type;
-    };
+private:
+    
+    void _recive(const InvokersMap& invs, const JSInvokeMessage& message) const noexcept(false) {
+        auto invokerIt = invs.find(message.function);
+        if (invokerIt != invs.end()) {
+            invokerIt->second->invoke(message);
+        } else {
+            std::stringstream ss("Failed to find function ", std::ios_base::app |std::ios_base::out);
+            ss << message.function << std::endl;
+            throw std::runtime_error(ss.str());
+        }
+    }
+    
+    JSBridge() {};
 };
-/// -----
 
 
-struct FunctionInvokerBase {
-    virtual void invoke(const JSInvokeMessage& message) const {};
+template<typename R>
+static inline void functionReturn(const JSInvokeMessage& message, R&& value) {
+    if (!message.callback.empty() && !message.callback_id.empty()) {
+        std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
+        ss << "(\"" << message.callback_id << "\", " << value << ");";
+        JSBridge::getInstance().bridgeOperator->send(ss.str().c_str());
+    }
+}
+
+
+template<typename T>
+struct Convert {
+    auto operator()(int) -> T {
+        return T{};
+    }
 };
 
 template<typename T>
 struct FunctionInvoker;
 
-template<typename R, typename... Args>
-struct FunctionInvoker<std::function<R(Args...)>> : public FunctionInvokerBase {
-    FunctionInvoker(const std::string& n, std::function<R(Args...)> && func) : name(n), function(func) {
-    }
-    std::string name;
-    std::function<R(Args...)>  function;
-    
-    template<typename T>
-    void response(T value, const JSInvokeMessage& message) const {
-        if (!message.callback.empty() && !message.callback_id.empty()) {
-            
-            std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
-            ss << "(\"" << message.callback_id << "\", " << value << ");";
-            
-            JSBridge::getInstance().bridgeOperator->send(ss.str().c_str());
-        }
-    }
-    
-    void invoke(const JSInvokeMessage& message) const override {
-        
-        if constexpr (sizeof...(Args) == 0) {
-            auto value = function();
-            response(value, message);
-        }
-        if constexpr (sizeof...(Args) == 1) {
-            function(1);
-        }
-        if constexpr (!std::is_same_v<void, R>) {
+// TODO: implement const FunctionInvoker
 
+template<typename R, typename ClassType, typename... Args>
+struct FunctionInvoker<R (ClassType::*)(Args...)>
+  : public FunctionInvokerBase {
+    
+    FunctionInvoker(R (ClassType::*f)(Args...) ) : _f(f){}
+    
+    R (ClassType::*_f)(Args...);
+    
+    template<std::size_t... S>
+    inline R _invoke(ClassType* object_, std::index_sequence<S...>, const JSArg *args) const {
+        
+        // both S and Args expanded
+//        return (object_->*_f)(Convert<Args>{}(std::get<std::tuple_element_t<S, std::tuple<Args...>>>(args[S]))...);
+        return (object_->*_f)(std::get<std::tuple_element_t<S, std::tuple<Args...>>>(args[S])...);
+    }
+      
+    void invoke(const JSInvokeMessage& message) const override {
+        assert(message.object);
+        
+        ClassType* object_ = reinterpret_cast<ClassType*>(message.object);
+        auto sequence = std::index_sequence_for<Args...>{};
+        if constexpr (std::is_same_v<R, void>) {
+            _invoke(object_, sequence, message.args);
+        } else {
+            functionReturn(message, _invoke(object_, sequence, message.args));
         }
     };
 };
 
-template<typename R, typename T, typename U, typename... Args>
-std::function<R(Args...)> bindFunction(R (T::*f)(Args...), U p) {
-    return [p,f](Args... args)->R { return (p->*f)(args...); };
+
+template<typename R, typename... Args>
+struct FunctionInvoker<R (*)(Args...)>
+  : public FunctionInvokerBase {
+    
+    FunctionInvoker(R (*f)(Args...) ) : _f(f){}
+    
+    R (*_f)(Args...);
+    
+    template<std::size_t... S>
+    inline R _invoke(std::index_sequence<S...>, const JSArg *args) const {
+        return (*_f)(std::get<std::tuple_element_t<S, std::tuple<Args...>>>(args[S])...);
+    }
+      
+    void invoke(const JSInvokeMessage& message) const override {
+        auto sequence = std::index_sequence_for<Args...>{};
+        if constexpr (std::is_same_v<R, void>) {
+            _invoke(sequence, message.args);
+        } else {
+            functionReturn(message, _invoke(sequence, message.args));
+        }
+    };
 };
 
-class JSBinding {
+template<typename ClassType>
+class class_ : public base_class_ {
     
 public:
-    JSBinding() {
-        auto ptrKey = reinterpret_cast<uintptr_t>(this);
-        JSBridge::getInstance()._register[ptrKey] = this;
+    class_() = delete;
+    
+    explicit class_(const char* name) {
+        _name = name;
     }
     
-    ~JSBinding() {
-        auto ptrKey = reinterpret_cast<uintptr_t>(this);
-        JSBridge::getInstance()._register.erase(ptrKey);
-        for (auto& [k, v] : _invokers) {
-            delete v;
-        }
-        _invokers.clear();
+    ~class_() {
+        class_<ClassType>* _class_ = new class_<ClassType>(_name.c_str());
+        std::swap(_class_->_invokers, _invokers);
+        JSBridge::getInstance().classes.insert({ _name , std::unique_ptr<base_class_>( _class_ ) });
     }
     
-    template <typename Callable, typename ClassType>
-    static inline void registerFunction(const std::string& name, Callable callable, ClassType* obj) {
-        auto function = bindFunction(callable, obj);
-        obj->_invokers[name] = new FunctionInvoker<decltype(function)>(name, std::move(function));
+    template <typename Callable>
+    inline class_<ClassType>& function(const char* name, Callable callable) {
+        _invokers.insert( { name, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+        return *this;
     }
     
-    void invoke(const JSInvokeMessage& message) const {
-        auto it = _invokers.find(message.function);
-        if (it != _invokers.end()) {
-            auto& invoker = it->second;
-            invoker->invoke(message);
-        } else {
-            
-            std::stringstream ss("failed to find ", std::ios_base::app |std::ios_base::out);
-            ss << message.function << std::endl;
-            throw std::runtime_error(ss.str());
-            // TODO: do someting more
-            printf("failed to find %s \n", message.function.c_str());
-        }
-    }
+private:
+    std::string _name;
 
-protected:
-    
-    std::unordered_map<std::string, FunctionInvokerBase* > _invokers;
-    
-    friend class JSBridge;
 };
 
-static inline void JSBindingInvokerFunction(JSBinding* object, const JSInvokeMessage& message) {
-    object->invoke(message);
+
+
+template<typename Callable, typename... Policies>
+void function(const char* name, Callable callable, Policies...) {
+    JSBridge::getInstance().invokers.insert( { name, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
 }
 
+}
+
+// copy of EMSCRIPTEN_BINDINGS for compatibility reason.
+#define JSBridge_BINDINGS(name)                                         \
+    static struct JSBridgeBindingInitializer_##name {                   \
+          JSBridgeBindingInitializer_##name();                          \
+    } JSBridgeBindingInitializer_##name##_instance;                     \
+JSBridgeBindingInitializer_##name::JSBridgeBindingInitializer_##name()
 
 
 #endif /* JSBridge_hpp */

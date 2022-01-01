@@ -16,7 +16,7 @@
 using json = nlohmann::json;
 
 
-class WKJSBridgeOperator : public JSBridgeOperator {
+class WKJSBridgeOperator : public jsbridge::JSBridgeOperator {
 public:
     WKJSBridgeOperator(WKWebView *view);
     
@@ -30,10 +30,25 @@ public:
         // TODO: subclass and implement here JSInvokeMessage
         
         std::string callback = json["callback"].is_null() ? "" : json["callback"];
-        std::string callback_id = json["callback_id"].is_null() ? "" : json["callback_id"];
+        std::string callback_id = json["cid"].is_null() ? "" : json["cid"];
+        uintptr_t ptr = json["object"].is_null() ? 0 : json["object"].get<uintptr_t>();
         
-        JSInvokeMessage me = { json["object"], json["function"], callback, callback_id };
-        JSBridge::getInstance().recive(me);
+        std::string classid = json["class"].is_null() ? "" : json["class"];
+        
+        jsbridge::JSInvokeMessage msgStruct = { ptr, std::move(classid), json["function"],
+            std::move(callback), std::move(callback_id) };
+        
+        auto& args = json["args"];
+        if (!args.is_null() && args.is_array() && args.size() > 0) {
+            
+            // TODO: read types from function!!
+            msgStruct.args[0] = args[0].get<int>();
+            if (args.size() > 1) {
+                msgStruct.args[1] = args[1].get<int>();
+            }
+        }
+        
+        jsbridge::JSBridge::getInstance().recive(msgStruct);
     }
     
     

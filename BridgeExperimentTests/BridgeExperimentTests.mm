@@ -23,6 +23,8 @@
     // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
+using namespace jsbridge;
+
 - (void)testExample {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
@@ -30,10 +32,14 @@
     
     TestJSBinding *test = new TestJSBinding();
     
-    JSInvokeMessage message1 = { reinterpret_cast<uintptr_t>(test), "setNumber" };
+    JSInvokeMessage message1;
+    message1.object = reinterpret_cast<uintptr_t>(test);
+    message1.function = "setNumber";
     JSBridge::getInstance().recive(message1);
     
-    JSInvokeMessage message2 = { reinterpret_cast<uintptr_t>(test), "getNumber" };
+    JSInvokeMessage message2;
+    message2.object = reinterpret_cast<uintptr_t>(test);
+    message2.function = "getNumber";
     JSBridge::getInstance().recive(message2);
     
     delete test;
