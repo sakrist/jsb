@@ -15,7 +15,9 @@
 class TestJSBinding  {
 public:
     
-    TestJSBinding() { }
+    TestJSBinding() {
+//        i = num;
+    }
     
     ~TestJSBinding() {}
     
@@ -29,6 +31,10 @@ public:
     
     void setNumber(int newi) {
         i = newi;
+    }
+    
+    static int randomNumber(int modifier) {
+        return arc4random() % modifier;
     }
     
     int i = 0;

@@ -72,9 +72,11 @@ JSBridge_BINDINGS(my_module) {
     jsbridge::function("add", &add);
     
     jsbridge::class_<TestJSBinding>("TestJSBinding")
+        .constructor<>()
         .function("setNumber", &TestJSBinding::setNumber)
         .function("getNumber", &TestJSBinding::getNumber)
-        .function("setNumber2", &TestJSBinding::setNumber2);
+        .function("setNumber2", &TestJSBinding::setNumber2)
+        .class_function("randomNumber", &TestJSBinding::randomNumber);
 }
 
 

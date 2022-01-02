@@ -19,6 +19,8 @@
 
 using namespace std::placeholders;
 
+#define JSBRIDGE_ALWAYS_INLINE __attribute__((always_inline))
+
 namespace jsbridge {
 
 
@@ -53,6 +55,7 @@ protected:
     InvokersMap _invokers;
     friend class JSBridge;
 };
+using ClassesMap =  std::unordered_map<std::string, std::unique_ptr<base_class_>>;
 
 
 class JSBridge {
@@ -80,15 +83,16 @@ public:
         }
     }
     
-    std::shared_ptr<JSBridgeOperator> bridgeOperator; 
+    std::shared_ptr<JSBridgeOperator> bridgeOperator;
     
     // Module invokers
     InvokersMap invokers;
-    std::unordered_map<std::string, std::unique_ptr<base_class_>> classes;
+    
+    ClassesMap classes;
     
 private:
     
-    void _recive(const InvokersMap& invs, const JSInvokeMessage& message) const noexcept(false) {
+    JSBRIDGE_ALWAYS_INLINE void _recive(const InvokersMap& invs, const JSInvokeMessage& message) const noexcept(false) {
         auto invokerIt = invs.find(message.function);
         if (invokerIt != invs.end()) {
             invokerIt->second->invoke(message);
@@ -98,13 +102,14 @@ private:
             throw std::runtime_error(ss.str());
         }
     }
+    friend class base_class_;
     
     JSBridge() {};
 };
 
 
 template<typename R>
-static inline void functionReturn(const JSInvokeMessage& message, R&& value) {
+JSBRIDGE_ALWAYS_INLINE static void functionReturn(const JSInvokeMessage& message, R&& value) {
     if (!message.callback.empty() && !message.callback_id.empty()) {
         std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
         ss << "(\"" << message.callback_id << "\", " << value << ");";
@@ -125,16 +130,16 @@ struct FunctionInvoker;
 
 // TODO: implement const FunctionInvoker
 
-template<typename R, typename ClassType, typename... Args>
-struct FunctionInvoker<R (ClassType::*)(Args...)>
+template<typename ReturnType, typename ClassType, typename... Args>
+struct FunctionInvoker<ReturnType (ClassType::*)(Args...)>
   : public FunctionInvokerBase {
     
-    FunctionInvoker(R (ClassType::*f)(Args...) ) : _f(f){}
+    FunctionInvoker(ReturnType (ClassType::*f)(Args...) ) : _f(f){}
     
-    R (ClassType::*_f)(Args...);
+    ReturnType (ClassType::*_f)(Args...);
     
     template<std::size_t... S>
-    inline R _invoke(ClassType* object_, std::index_sequence<S...>, const JSArg *args) const {
+    JSBRIDGE_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const JSArg *args) const {
         
         // both S and Args expanded
 //        return (object_->*_f)(Convert<Args>{}(std::get<std::tuple_element_t<S, std::tuple<Args...>>>(args[S]))...);
@@ -146,7 +151,7 @@ struct FunctionInvoker<R (ClassType::*)(Args...)>
         
         ClassType* object_ = reinterpret_cast<ClassType*>(message.object);
         auto sequence = std::index_sequence_for<Args...>{};
-        if constexpr (std::is_same_v<R, void>) {
+        if constexpr (std::is_same_v<ReturnType, void>) {
             _invoke(object_, sequence, message.args);
         } else {
             functionReturn(message, _invoke(object_, sequence, message.args));
@@ -155,28 +160,34 @@ struct FunctionInvoker<R (ClassType::*)(Args...)>
 };
 
 
-template<typename R, typename... Args>
-struct FunctionInvoker<R (*)(Args...)>
-  : public FunctionInvokerBase {
+template<typename ReturnType, typename... Args>
+struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
     
-    FunctionInvoker(R (*f)(Args...) ) : _f(f){}
+    FunctionInvoker(ReturnType (*f)(Args...) ) : _f(f){}
     
-    R (*_f)(Args...);
-    
+    // TODO: functions with && , i.e. perfect forwarding does not work.
     template<std::size_t... S>
-    inline R _invoke(std::index_sequence<S...>, const JSArg *args) const {
-        return (*_f)(std::get<std::tuple_element_t<S, std::tuple<Args...>>>(args[S])...);
+    JSBRIDGE_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const JSArg *args) const {
+        return (*_f)(std::get< std::tuple_element_t<S, std::tuple<Args...>> >(args[S])...);
     }
       
     void invoke(const JSInvokeMessage& message) const override {
         auto sequence = std::index_sequence_for<Args...>{};
-        if constexpr (std::is_same_v<R, void>) {
+        if constexpr (std::is_same_v<ReturnType, void>) {
             _invoke(sequence, message.args);
         } else {
             functionReturn(message, _invoke(sequence, message.args));
         }
     };
+      
+private:
+    ReturnType (*_f)(Args...);
 };
+
+template<typename ClassType, typename... Args>
+JSBRIDGE_ALWAYS_INLINE ClassType* operator_new(Args&&... args) {
+    return new ClassType(std::forward<Args>(args)...);
+}
 
 template<typename ClassType>
 class class_ : public base_class_ {
@@ -189,16 +200,34 @@ public:
     }
     
     ~class_() {
+        // some what it is hack
         class_<ClassType>* _class_ = new class_<ClassType>(_name.c_str());
         std::swap(_class_->_invokers, _invokers);
         JSBridge::getInstance().classes.insert({ _name , std::unique_ptr<base_class_>( _class_ ) });
     }
     
     template <typename Callable>
-    inline class_<ClassType>& function(const char* name, Callable callable) {
+    JSBRIDGE_ALWAYS_INLINE class_& function(const char* name, Callable callable) {
         _invokers.insert( { name, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
         return *this;
     }
+    
+    template <typename Callable>
+    JSBRIDGE_ALWAYS_INLINE class_& class_function(const char* name, Callable callable) {
+        return function(name, callable);
+    }
+    
+    template<typename... ConstructorArgs, typename... Policies>
+    JSBRIDGE_ALWAYS_INLINE class_& constructor(Policies... policies) {
+        return constructor(&operator_new<ClassType, ConstructorArgs...>, policies...);
+    }
+    
+    template<typename Callable, typename... Policies>
+    JSBRIDGE_ALWAYS_INLINE class_& constructor(Callable callable, Policies...) {
+        _invokers.insert( { "constructor", std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+        return *this;
+    }
+    
     
 private:
     std::string _name;
