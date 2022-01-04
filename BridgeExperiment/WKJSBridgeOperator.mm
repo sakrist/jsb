@@ -12,8 +12,14 @@ WKJSBridgeOperator::WKJSBridgeOperator(WKWebView *view) {
 }
 
 void WKJSBridgeOperator::send(const char* message) const {
+    std::cout << "send: " << message << std::endl;
     NSString *string = [NSString stringWithCString:message encoding:NSUTF8StringEncoding];
+    
+//    [_view callAsyncJavaScript:<#(nonnull NSString *)#> arguments:<#(nullable NSDictionary<NSString *,id> *)#> inFrame:<#(nullable WKFrameInfo *)#> inContentWorld:<#(nonnull WKContentWorld *)#> completionHandler:<#^(id _Nullable, NSError * _Nullable error)completionHandler#>]
+    
     [_view evaluateJavaScript:string completionHandler:^(id _Nullable, NSError * _Nullable error) {
-        NSLog(@"%@", error);
+        if (error) {
+            NSLog(@"%@", error);
+        }
     }];
 }

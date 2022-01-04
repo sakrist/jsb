@@ -22,10 +22,10 @@ public:
     
     void send(const char* message) const override;
     
-    void recive(const char* message) const override {
+    void recive(const char* message, std::function<void(const char*)>&& completion) const override {
         
         auto json = json::parse(message);
-        std::cout << json << std::endl;
+        std::cout << "recive: " << json << std::endl;
         
         // TODO: subclass and implement here JSInvokeMessage
         
@@ -37,6 +37,8 @@ public:
         
         jsbridge::JSInvokeMessage msgStruct = { ptr, std::move(classid), json["function"],
             std::move(callback), std::move(callback_id) };
+        
+        msgStruct.completion = completion;
         
         auto& args = json["args"];
         if (!args.is_null() && args.is_array() && args.size() > 0) {

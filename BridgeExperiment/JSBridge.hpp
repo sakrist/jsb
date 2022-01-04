@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <functional>
 #include <variant>
+#include <type_traits>
 
 using namespace std::placeholders;
 
@@ -27,19 +28,24 @@ namespace jsbridge {
 class JSBridgeOperator {
 public:
     virtual void send(const char* message) const = 0;
-    virtual void recive(const char* message) const = 0;
+    virtual void recive(const char* message, std::function<void(const char*)>&& completion) const = 0;
 };
 
 
 class JSBridge;
-using JSArg = std::variant<char, short, int, long, uintptr_t, float, double>;
+using JSArg = std::variant<bool, char, short, int, long, uintptr_t, float, double>;
 
 struct JSInvokeMessage {
     uintptr_t object;
     std::string class_id;
     std::string function;
+    
+    // for async
     std::string callback;
     std::string callback_id;
+    
+    // sync
+    std::function<void(const char*)> completion{nullptr};
     
     int args_count{ 0 };
     JSArg args[3];
@@ -68,26 +74,28 @@ public:
     JSBridge(const JSBridge&) = delete;
     void operator=(const JSBridge&) = delete;
     
-    void recive(const JSInvokeMessage& message) const noexcept(false) {
-        if (message.object == 0) {
+    void recive(JSInvokeMessage& message) const noexcept(false) {
+        if (message.class_id.empty()) {
             _recive(invokers, message);
         } else {
-            auto objIt = classes.find(message.class_id);
-            if (objIt != classes.end()) {
-                _recive(objIt->second->_invokers, message);
+            auto classIt = classes.find(message.class_id);
+            if (classIt != classes.end()) {
+                _recive(classIt->second->_invokers, message);
             } else {
                 std::stringstream ss("Failed to find class id ", std::ios_base::app |std::ios_base::out);
                 ss << message.class_id << std::endl;
-                throw std::runtime_error(ss.str());
+                printf("%s\n", ss.str().c_str());
+                throw std::logic_error(ss.str());
             }
         }
     }
     
     std::shared_ptr<JSBridgeOperator> bridgeOperator;
     
-    // Module invokers
+    // Module functions registered from global scope
     InvokersMap invokers;
     
+    // registered classes
     ClassesMap classes;
     
 private:
@@ -99,7 +107,8 @@ private:
         } else {
             std::stringstream ss("Failed to find function ", std::ios_base::app |std::ios_base::out);
             ss << message.function << std::endl;
-            throw std::runtime_error(ss.str());
+            printf("%s\n", ss.str().c_str());
+            throw std::logic_error(ss.str());
         }
     }
     friend class base_class_;
@@ -110,20 +119,71 @@ private:
 
 template<typename R>
 JSBRIDGE_ALWAYS_INLINE static void functionReturn(const JSInvokeMessage& message, R&& value) {
-    if (!message.callback.empty() && !message.callback_id.empty()) {
+ //   assert(!message.callback.empty() && !message.callback_id.empty());
+    
+    if (message.completion) {
         std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
-        ss << "(\"" << message.callback_id << "\", " << value << ");";
+        ss << "{\"r\":";
+        if constexpr (std::is_pointer_v<R>) {
+            ss << reinterpret_cast<uintptr_t>(value);
+        } else {
+            ss << value;
+        }
+        ss << "}";
+        
+        message.completion(ss.str().c_str());
+    } else {
+        
+        std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
+        ss << "(\"" << message.callback_id << "\", ";
+        if constexpr (std::is_pointer_v<R>) {
+            ss << reinterpret_cast<uintptr_t>(value);
+        } else {
+            ss << value;
+        }
+        ss << ");";
+        
         JSBridge::getInstance().bridgeOperator->send(ss.str().c_str());
     }
 }
 
 
-template<typename T>
-struct Convert {
-    auto operator()(int) -> T {
-        return T{};
-    }
+template <typename T>
+struct compatible_type {
+    inline static constexpr bool value = (std::is_same_v<T, void>
+                                          || std::is_same_v<T, bool>
+                                          || std::is_same_v<T, char>
+                                          || std::is_same_v<T, unsigned char>
+                                          || std::is_same_v<T, short>
+                                          || std::is_same_v<T, unsigned short>
+                                          || std::is_same_v<T, int>
+                                          || std::is_same_v<T, unsigned int>
+                                          || std::is_same_v<T, long>
+                                          || std::is_same_v<T, unsigned long>
+                                          || std::is_same_v<T, float>
+                                          || std::is_same_v<T, double>
+                                          || std::is_same_v<T, uintptr_t>
+                                          || std::is_pointer_v<T>
+                                          );
 };
+
+template<typename T>
+inline constexpr bool compatible_type_v = compatible_type<T>::value;
+
+template <typename T>
+struct remove_all : std::remove_cv<std::remove_reference_t<std::remove_pointer_t<T>>> { };
+template <class _Tp>
+using remove_all_t = typename remove_all<_Tp>::type;
+
+template <typename T>
+JSBRIDGE_ALWAYS_INLINE T uintptr_conver(uintptr_t val) {
+    return reinterpret_cast<T>(val);
+};
+template <typename T>
+JSBRIDGE_ALWAYS_INLINE T uintptr_conver(T val) {
+    return std::forward<T>(val);
+};
+
 
 template<typename T>
 struct FunctionInvoker;
@@ -134,16 +194,22 @@ template<typename ReturnType, typename ClassType, typename... Args>
 struct FunctionInvoker<ReturnType (ClassType::*)(Args...)>
   : public FunctionInvokerBase {
     
-    FunctionInvoker(ReturnType (ClassType::*f)(Args...) ) : _f(f){}
+    FunctionInvoker(ReturnType (ClassType::*f)(Args...) ) : _f(f){
+        static_assert(compatible_type_v<std::remove_cv_t<ReturnType>>, "incompatible return type");
+    }
     
     ReturnType (ClassType::*_f)(Args...);
     
     template<std::size_t... S>
     JSBRIDGE_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const JSArg *args) const {
         
-        // both S and Args expanded
-//        return (object_->*_f)(Convert<Args>{}(std::get<std::tuple_element_t<S, std::tuple<Args...>>>(args[S]))...);
-        return (object_->*_f)(std::get<std::tuple_element_t<S, std::tuple<Args...>>>(args[S])...);
+        // Here we are executing function from 
+        return (object_->*_f)
+        (uintptr_conver<std::tuple_element_t<S, std::tuple<Args...>>>(std::get<
+                                  typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
+                                         uintptr_t,
+                                         remove_all_t<std::tuple_element_t<S, std::tuple<Args...>>>>::type
+                                 >(args[S]))...);
     }
       
     void invoke(const JSInvokeMessage& message) const override {
@@ -154,7 +220,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)>
         if constexpr (std::is_same_v<ReturnType, void>) {
             _invoke(object_, sequence, message.args);
         } else {
-            functionReturn(message, _invoke(object_, sequence, message.args));
+            functionReturn(message, std::forward<ReturnType>(_invoke(object_, sequence, message.args)));
         }
     };
 };
@@ -163,12 +229,19 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)>
 template<typename ReturnType, typename... Args>
 struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
     
-    FunctionInvoker(ReturnType (*f)(Args...) ) : _f(f){}
+    FunctionInvoker(ReturnType (*f)(Args...)) : _f(f)  {
+        static_assert(compatible_type_v<std::remove_cv_t<ReturnType>>, "incompatible return type");
+    }
     
     // TODO: functions with && , i.e. perfect forwarding does not work.
     template<std::size_t... S>
     JSBRIDGE_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const JSArg *args) const {
-        return (*_f)(std::get< std::tuple_element_t<S, std::tuple<Args...>> >(args[S])...);
+        return (*_f)
+        (uintptr_conver<std::tuple_element_t<S, std::tuple<Args...>>>(std::get<
+                                     typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
+                                            uintptr_t,
+                                            remove_all_t<std::tuple_element_t<S, std::tuple<Args...>>>>::type
+                                    >(args[S]))...);
     }
       
     void invoke(const JSInvokeMessage& message) const override {
@@ -176,10 +249,10 @@ struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
         if constexpr (std::is_same_v<ReturnType, void>) {
             _invoke(sequence, message.args);
         } else {
-            functionReturn(message, _invoke(sequence, message.args));
+            functionReturn(message, std::forward<ReturnType>(_invoke(sequence, message.args)));
         }
     };
-      
+    
 private:
     ReturnType (*_f)(Args...);
 };
@@ -195,8 +268,15 @@ class class_ : public base_class_ {
 public:
     class_() = delete;
     
-    explicit class_(const char* name) {
+    explicit class_(const char* name) noexcept(false) {
         _name = name;
+        auto it = JSBridge::getInstance().classes.find(_name);
+        if (it != JSBridge::getInstance().classes.end()) {
+            std::stringstream ss("Class with ", std::ios_base::app |std::ios_base::out);
+            ss << _name << " already bind" << std::endl;
+            printf("%s\n", ss.str().c_str());
+            throw std::logic_error(ss.str());            
+        }
     }
     
     ~class_() {
@@ -208,13 +288,14 @@ public:
     
     template <typename Callable>
     JSBRIDGE_ALWAYS_INLINE class_& function(const char* name, Callable callable) {
-        _invokers.insert( { name, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+        _addFunction( { name, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
         return *this;
     }
     
     template <typename Callable>
     JSBRIDGE_ALWAYS_INLINE class_& class_function(const char* name, Callable callable) {
-        return function(name, callable);
+        _addFunction( { name, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+        return *this;
     }
     
     template<typename... ConstructorArgs, typename... Policies>
@@ -224,12 +305,22 @@ public:
     
     template<typename Callable, typename... Policies>
     JSBRIDGE_ALWAYS_INLINE class_& constructor(Callable callable, Policies...) {
-        _invokers.insert( { "constructor", std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+        _addFunction( { "constructor", std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
         return *this;
     }
     
     
 private:
+    
+    JSBRIDGE_ALWAYS_INLINE void _addFunction(std::pair<std::string, std::unique_ptr<FunctionInvokerBase>>&& pair) {
+        auto it = _invokers.find(pair.first);
+        if (it != _invokers.end()) {
+            printf("Error: overriding key: %s\n", pair.first.c_str());
+            assert(0);
+        }
+        _invokers.insert(std::move(pair));
+    }
+    
     std::string _name;
 
 };
@@ -241,9 +332,66 @@ void function(const char* name, Callable callable, Policies...) {
     JSBridge::getInstance().invokers.insert( { name, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
 }
 
+
+
+
+
+// copy from emscripten
+
+namespace internal {
+
+
+
+template<typename VectorType>
+struct VectorAccess {
+    // TODO: impl
+//    static val get(
+//        const VectorType& v,
+//        typename VectorType::size_type index
+//    ) {
+//        if (index < v.size()) {
+//            return val(v[index]);
+//        } else {
+//            return val::undefined();
+//        }
+//    }
+
+    static bool set(
+        VectorType& v,
+        typename VectorType::size_type index,
+        const typename VectorType::value_type& value
+    ) {
+        v[index] = value;
+        return true;
+    }
+};
+
+} // end namespace internal
+
+
+
+template<typename T>
+class_<std::vector<T>> register_vector(const char* name) {
+    typedef std::vector<T> VecType;
+
+    void (VecType::*push_back)(const T&) = &VecType::push_back;
+    void (VecType::*resize)(const size_t, const T&) = &VecType::resize;
+    size_t (VecType::*size)() const = &VecType::size;
+    return class_<std::vector<T>>(name)
+        .template constructor<>()
+        .function("push_back", push_back)
+        .function("resize", resize)
+        .function("size", size)
+    // TODO: implement get set for vector
+//        .function("get", &internal::VectorAccess<VecType>::get)
+        .function("set", &internal::VectorAccess<VecType>::set)
+        ;
 }
 
-// copy of EMSCRIPTEN_BINDINGS for compatibility reason.
+
+} // namespace jsbridge
+
+// copy of EMSCRIPTEN_BINDINGS/BOOST_PYTHON_MODULE for compatibility reason.
 #define JSBridge_BINDINGS(name)                                         \
     static struct JSBridgeBindingInitializer_##name {                   \
           JSBridgeBindingInitializer_##name();                          \

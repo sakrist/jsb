@@ -17,11 +17,12 @@ public:
     
     TestJSBinding() {
 //        i = num;
+        printf("constructor TestJSBinding\n");
     }
     
     ~TestJSBinding() {}
     
-    int getNumber() {
+    const int getNumber() {
         return i;
     }
     
@@ -33,8 +34,16 @@ public:
         i = newi;
     }
     
+    void copyFrom(TestJSBinding* obj) {
+        i = obj->i;
+    }
+    
     static int randomNumber(int modifier) {
         return arc4random() % modifier;
+    }
+    
+    void* voidPtr() {
+        return &i;
     }
     
     int i = 0;

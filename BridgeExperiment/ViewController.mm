@@ -59,27 +59,29 @@
     
     [self performSelector:@selector(registerTestObject) withObject:nil afterDelay:1];
     
-    
     // Do any additional setup after loading the view.
-    
 }
 
-float add(int a, int b) {
-    return a + b;
+- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+    if ([message.name isEqualToString:@"BridgeTS"]) {
+        NSString *messageStr = message.body;
+        _bridgeOperator->recive(messageStr.UTF8String, nullptr);
+    }
 }
 
-JSBridge_BINDINGS(my_module) {
-    jsbridge::function("add", &add);
-    
-    jsbridge::class_<TestJSBinding>("TestJSBinding")
-        .constructor<>()
-        .function("setNumber", &TestJSBinding::setNumber)
-        .function("getNumber", &TestJSBinding::getNumber)
-        .function("setNumber2", &TestJSBinding::setNumber2)
-        .class_function("randomNumber", &TestJSBinding::randomNumber);
+- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable))completionHandler {
+     const char* data = [prompt cStringUsingEncoding:NSUTF8StringEncoding];
+    _bridgeOperator->recive(data, [=](const char* r){
+        NSString *ret = [NSString stringWithCString:r encoding:NSUTF8StringEncoding];
+        completionHandler(ret);
+    });
 }
 
+- (void)setRepresentedObject:(id)representedObject {
+    [super setRepresentedObject:representedObject];
 
+    // Update the view, if already loaded.
+}
 
 - (void) registerTestObject {
     _test = std::make_shared<TestJSBinding>();
@@ -91,20 +93,36 @@ JSBridge_BINDINGS(my_module) {
     _bridgeOperator->send(ss.str().c_str());
 }
 
-- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
+float add(int a, int b) {
+    return a + b;
+}
+
+inline std::vector<int> *vecIntFromIntPointer(uintptr_t vec) {
+  return reinterpret_cast<std::vector<int> *>(vec);
+}
+
+
+JSBridge_BINDINGS(my_module) {
+    jsbridge::function("add", &add);
     
-    if ([message.name isEqualToString:@"BridgeTS"]) {
-        NSString *messageStr = message.body;
-        _bridgeOperator->recive(messageStr.UTF8String);
-    }
+    jsbridge::class_<TestJSBinding>("TestJSBinding")
+        .constructor<>()
+        .function("setNumber", &TestJSBinding::setNumber)
+        .function("getNumber", &TestJSBinding::getNumber)
+        .function("setNumber2", &TestJSBinding::setNumber2)
+        .function("voidPtr", &TestJSBinding::voidPtr)
+    
+        .function("copyFrom", &TestJSBinding::copyFrom)
+    
+//        .function("voidPtr", &TestJSBinding::voidPtr)
+//        .function("voidPtr", &TestJSBinding::voidPtr)
+//        .function("voidPtr", &TestJSBinding::voidPtr)
+        .class_function("randomNumber", &TestJSBinding::randomNumber);
+    
+    
+//    jsbridge::register_vector<int>("VectorInt").constructor(&vecIntFromIntPointer);
 }
 
-
-- (void)setRepresentedObject:(id)representedObject {
-    [super setRepresentedObject:representedObject];
-
-    // Update the view, if already loaded.
-}
 
 
 @end

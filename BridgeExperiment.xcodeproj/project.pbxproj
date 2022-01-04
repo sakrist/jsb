@@ -493,7 +493,7 @@
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -513,7 +513,7 @@
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -531,7 +531,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				INFOPLIST_FILE = BridgeExperimentTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -551,7 +551,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				INFOPLIST_FILE = BridgeExperimentTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

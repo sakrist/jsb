@@ -3,34 +3,28 @@ import { BridgeTS } from './BridgeTS';
 
 
 export class TestJSBinding extends JSBinding {
-    public constructor(ptrObject: BigInt) {
-        super(ptrObject);
+    public constructor(ptrObject?: BigInt) {
+        if (!ptrObject) {
+            ptrObject = BridgeTS.getInstance().sendMessageSync('{ "class" : "TestJSBinding", "function" : "constructor" }') as BigInt;
+            super(ptrObject);
+        } else {
+            super(ptrObject);
+        }
     }
 
     static promises : Map<string, Function> = new Map();
-
-    public async getNumber() : Promise<number> {
-
-        // TODO: think of someting more unique, could be date + incremental_value ?
-        let callid = BridgeTS.generateCallID(this.ptr);
-
-        var p = new Promise<number>((resolve) => {
-            TestJSBinding.promises.set(callid, resolve);
-        });
-
-        BridgeTS.getInstance().sendMessage('{ "class" : "TestJSBinding", "object" : ' + this.ptr + ', \
-        "function" : "getNumber", \
-        "callback" : "TestJSBinding.cb_getNumber", \
-        "cid" : "'+ callid +'" }');
-        return p;
-    }
-
-    static cb_getNumber(key:string, value:number) {
+    static _callback(key:string, value:any) {
         var resolve = TestJSBinding.promises.get(key);
         TestJSBinding.promises.delete(key);
         if(resolve) {
             resolve(value);
         }
+    }
+
+    public getNumber() : number {
+        let r = BridgeTS.getInstance().sendMessageSync('{ "class" : "TestJSBinding", "object" : ' + this.ptr + ', \
+        "function" : "getNumber" }');
+        return Number(r);
     }
 
     public setNumber(index:number) : void {
@@ -45,6 +39,13 @@ export class TestJSBinding extends JSBinding {
         "object" : ' + this.ptr + ', \
         "function" : "setNumber2", \
         "args" : [' + index + ', ' + index2 + '] }');
+    }
+
+    public static randomNumber(arg:number) : number {
+        
+        let r = BridgeTS.getInstance().sendMessageSync('{ "class" : "TestJSBinding", \
+        "function" : "randomNumber", "args" : [' + arg + ']  }');
+        return Number(r);
     }
 }
 

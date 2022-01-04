@@ -1,4 +1,3 @@
-// export default
 import { Window } from "./Window"
 
 export class BridgeTS {
@@ -12,39 +11,40 @@ export class BridgeTS {
         return BridgeTS.instance;
     }
 
-    public sendMessage(message:String) {
-  
+    public sendMessage(message:string) {
       // TODO: do for other browsers
-  
       (window as unknown as Window).webkit.messageHandlers.BridgeTS.postMessage(message);
     }
 
+    public sendMessageSync(message:string) : any {
+      try {
+        var res = prompt(message);
+        // @ts-ignore
+        let object = JSON.parse(res);
+        return object.r;
+      } catch (error) {
+        console.log('The native context does not exist yet');
+      }
+      return undefined;
+    }
+
     // TODO: think of someting more unique, could be date + incremental_value ?
-    static generateCallID(v:BigInt) : string {
-      return v + "_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
+    static generateCallID(v?:BigInt) : string {
+      return ((v) ? v : "0") + "_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
     }
 
     static promises : Map<string, Function> = new Map();
-
-    static async add(a:number, b:number) : Promise<number> {
-
-        let callid = BridgeTS.generateCallID(BigInt(0));
-
-        var p = new Promise<number>((resolve) => {
-          BridgeTS.promises.set(callid, resolve);
-        });
-
-        BridgeTS.getInstance().sendMessage('{ "function" : "add", \
-        "args" : [' + a + ', ' + b + '], \
-        "callback" : "BridgeTS.cb_add", "cid" : "'+ callid +'" }');
-        return p;
+    static _callback(key:string, value:any) {
+      var resolve = BridgeTS.promises.get(key);
+      BridgeTS.promises.delete(key);
+      if(resolve) {
+          resolve(value);
+      }
     }
 
-    static cb_add(key:string, value:number) {
-        var resolve = BridgeTS.promises.get(key);
-        BridgeTS.promises.delete(key);
-        if(resolve) {
-            resolve(value);
-        }
+    static add(a:number, b:number) : number {
+        let r = BridgeTS.getInstance().sendMessageSync('{ "function" : "add", \
+        "args" : [' + a + ', ' + b + '] }');
+        return Number(r);
     }
   }
