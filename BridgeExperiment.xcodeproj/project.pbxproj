@@ -21,6 +21,7 @@
 		D28CDE24277DD8FE009901AC /* bridgets.cjs.production.min.js in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE21277DD8FE009901AC /* bridgets.cjs.production.min.js */; };
 		D28CDE25277DD8FE009901AC /* bridgets.cjs.development.js in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE23277DD8FE009901AC /* bridgets.cjs.development.js */; };
 		D28CDE31277DD963009901AC /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D28CDE30277DD963009901AC /* WebKit.framework */; };
+		D2AE454B27848F4100803E36 /* Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE454927848F4100803E36 /* Tests.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,8 @@
 		D28CDE22277DD8FE009901AC /* bridgets.cjs.production.min.js.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; name = bridgets.cjs.production.min.js.map; path = BridgeTS/dist/bridgets.cjs.production.min.js.map; sourceTree = SOURCE_ROOT; };
 		D28CDE23277DD8FE009901AC /* bridgets.cjs.development.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bridgets.cjs.development.js; path = BridgeTS/dist/bridgets.cjs.development.js; sourceTree = SOURCE_ROOT; };
 		D28CDE30277DD963009901AC /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		D2AE454927848F4100803E36 /* Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Tests.cpp; sourceTree = "<group>"; };
+		D2AE454A27848F4100803E36 /* Tests.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tests.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +171,8 @@
 		D28CDDEF277DD7A0009901AC /* BridgeExperimentTests */ = {
 			isa = PBXGroup;
 			children = (
+				D2AE454927848F4100803E36 /* Tests.cpp */,
+				D2AE454A27848F4100803E36 /* Tests.hpp */,
 				D28CDDF0277DD7A0009901AC /* BridgeExperimentTests.mm */,
 				D28CDDF2277DD7A0009901AC /* Info.plist */,
 			);
@@ -336,6 +341,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D28CDDF1277DD7A0009901AC /* BridgeExperimentTests.mm in Sources */,
+				D2AE454B27848F4100803E36 /* Tests.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
