@@ -1,7 +1,7 @@
 
 ## Project Description
 
-Project is inspired by Emscripten's embind.
+Project is inspired by Emscripten's embind and later by Boost.Python.
 
 ## Targets
 
