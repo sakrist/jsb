@@ -1,5 +1,5 @@
 //
-//  WKJSBridgeOperator.cpp
+//  WKJSBridgeCommunicator.cpp
 //  BridgeExperiment
 //
 //  Created by Volodymyr Boichentsov on 29/12/2021.

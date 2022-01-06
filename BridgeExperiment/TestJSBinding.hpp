@@ -33,6 +33,22 @@ public:
     void setNumber(int newi) {
         i = newi;
     }
+    void setNumberf(float newi) {
+        i = newi;
+    }
+    void setNumberd(double newi) {
+        i = newi;
+    }
+    
+    void forward(int&& newi) {
+        i = newi;
+    }
+    void forwardf(float&& newi) {
+        i = newi;
+    }
+    void forwardd(double&& newi) {
+        i = newi;
+    }
     
     void copyFrom(TestJSBinding* obj) {
         i = obj->i;
@@ -44,6 +60,14 @@ public:
     
     void* voidPtr() {
         return &i;
+    }
+    
+//    std::string string() {
+//        return "string";
+//    }
+    
+    void const_func() const {
+        printf("const_func\n");
     }
     
     int i = 0;

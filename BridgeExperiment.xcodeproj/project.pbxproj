@@ -17,11 +17,12 @@
 		D28CDE18277DD8D5009901AC /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE10277DD8D4009901AC /* ViewController.mm */; };
 		D28CDE19277DD8D5009901AC /* JSBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE11277DD8D4009901AC /* JSBridge.cpp */; };
 		D28CDE1A277DD8D5009901AC /* TestJSBinding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE12277DD8D5009901AC /* TestJSBinding.cpp */; };
-		D28CDE1B277DD8D5009901AC /* WKJSBridgeOperator.mm in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE13277DD8D5009901AC /* WKJSBridgeOperator.mm */; };
+		D28CDE1B277DD8D5009901AC /* WKJSBridgeCommunicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE13277DD8D5009901AC /* WKJSBridgeCommunicator.mm */; };
 		D28CDE24277DD8FE009901AC /* bridgets.cjs.production.min.js in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE21277DD8FE009901AC /* bridgets.cjs.production.min.js */; };
 		D28CDE25277DD8FE009901AC /* bridgets.cjs.development.js in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE23277DD8FE009901AC /* bridgets.cjs.development.js */; };
 		D28CDE31277DD963009901AC /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D28CDE30277DD963009901AC /* WebKit.framework */; };
 		D2AE454B27848F4100803E36 /* Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE454927848F4100803E36 /* Tests.cpp */; };
+		D2AE45592786459400803E36 /* JSClassGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE45572786459400803E36 /* JSClassGenerator.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -66,9 +67,9 @@
 		D28CDE10277DD8D4009901AC /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		D28CDE11277DD8D4009901AC /* JSBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSBridge.cpp; sourceTree = "<group>"; };
 		D28CDE12277DD8D5009901AC /* TestJSBinding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestJSBinding.cpp; sourceTree = "<group>"; };
-		D28CDE13277DD8D5009901AC /* WKJSBridgeOperator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WKJSBridgeOperator.mm; sourceTree = "<group>"; };
+		D28CDE13277DD8D5009901AC /* WKJSBridgeCommunicator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WKJSBridgeCommunicator.mm; sourceTree = "<group>"; };
 		D28CDE14277DD8D5009901AC /* JSBridge.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = JSBridge.hpp; sourceTree = "<group>"; };
-		D28CDE15277DD8D5009901AC /* WKJSBridgeOperator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WKJSBridgeOperator.hpp; sourceTree = "<group>"; };
+		D28CDE15277DD8D5009901AC /* WKJSBridgeCommunicator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WKJSBridgeCommunicator.hpp; sourceTree = "<group>"; };
 		D28CDE16277DD8D5009901AC /* TestJSBinding.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TestJSBinding.hpp; sourceTree = "<group>"; };
 		D28CDE1F277DD8EC009901AC /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = SOURCE_ROOT; };
 		D28CDE20277DD8FE009901AC /* bridgets.cjs.development.js.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; name = bridgets.cjs.development.js.map; path = BridgeTS/dist/bridgets.cjs.development.js.map; sourceTree = SOURCE_ROOT; };
@@ -78,6 +79,10 @@
 		D28CDE30277DD963009901AC /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		D2AE454927848F4100803E36 /* Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Tests.cpp; sourceTree = "<group>"; };
 		D2AE454A27848F4100803E36 /* Tests.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tests.hpp; sourceTree = "<group>"; };
+		D2AE45522784BA6500803E36 /* em_asm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_asm.h; sourceTree = "<group>"; };
+		D2AE45532784BA6500803E36 /* em_js.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_js.h; sourceTree = "<group>"; };
+		D2AE45572786459400803E36 /* JSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSClassGenerator.cpp; sourceTree = "<group>"; };
+		D2AE45582786459400803E36 /* JSClassGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSClassGenerator.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,6 +118,8 @@
 				D25785C2277F5BC800F4B3E0 /* bind.hpp */,
 				D25785C0277F5BC800F4B3E0 /* val.hpp */,
 				D25785C1277F5BC800F4B3E0 /* wire.hpp */,
+				D2AE45522784BA6500803E36 /* em_asm.h */,
+				D2AE45532784BA6500803E36 /* em_js.h */,
 			);
 			path = emsdk;
 			sourceTree = "<group>";
@@ -153,12 +160,14 @@
 				D28CDDDC277DD797009901AC /* ViewController.h */,
 				D28CDE10277DD8D4009901AC /* ViewController.mm */,
 				D28CDE0F277DD8D4009901AC /* index.html */,
+				D2AE45572786459400803E36 /* JSClassGenerator.cpp */,
+				D2AE45582786459400803E36 /* JSClassGenerator.hpp */,
 				D28CDE11277DD8D4009901AC /* JSBridge.cpp */,
 				D28CDE14277DD8D5009901AC /* JSBridge.hpp */,
 				D28CDE12277DD8D5009901AC /* TestJSBinding.cpp */,
 				D28CDE16277DD8D5009901AC /* TestJSBinding.hpp */,
-				D28CDE15277DD8D5009901AC /* WKJSBridgeOperator.hpp */,
-				D28CDE13277DD8D5009901AC /* WKJSBridgeOperator.mm */,
+				D28CDE15277DD8D5009901AC /* WKJSBridgeCommunicator.hpp */,
+				D28CDE13277DD8D5009901AC /* WKJSBridgeCommunicator.mm */,
 				D28CDDDF277DD79F009901AC /* Assets.xcassets */,
 				D28CDDE1277DD79F009901AC /* Main.storyboard */,
 				D28CDDE4277DD79F009901AC /* Info.plist */,
@@ -330,9 +339,10 @@
 				D28CDDE6277DD79F009901AC /* main.m in Sources */,
 				D28CDDDB277DD797009901AC /* AppDelegate.m in Sources */,
 				D28CDE1A277DD8D5009901AC /* TestJSBinding.cpp in Sources */,
-				D28CDE1B277DD8D5009901AC /* WKJSBridgeOperator.mm in Sources */,
+				D28CDE1B277DD8D5009901AC /* WKJSBridgeCommunicator.mm in Sources */,
 				D28CDE18277DD8D5009901AC /* ViewController.mm in Sources */,
 				D28CDE19277DD8D5009901AC /* JSBridge.cpp in Sources */,
+				D2AE45592786459400803E36 /* JSClassGenerator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

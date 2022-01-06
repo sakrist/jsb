@@ -5,7 +5,7 @@ import { BridgeTS } from './BridgeTS';
 export class TestJSBinding extends JSBinding {
     public constructor(ptrObject?: BigInt) {
         if (!ptrObject) {
-            ptrObject = BridgeTS.getInstance().sendMessageSync('{ "class" : "TestJSBinding", "function" : "constructor" }') as BigInt;
+            ptrObject = BridgeTS.getInstance().sync('{ "class" : "TestJSBinding", "function" : "constructor" }') as BigInt;
             super(ptrObject);
         } else {
             super(ptrObject);
@@ -22,20 +22,20 @@ export class TestJSBinding extends JSBinding {
     }
 
     public getNumber() : number {
-        let r = BridgeTS.getInstance().sendMessageSync('{ "class" : "TestJSBinding", "object" : ' + this.ptr + ', \
+        let r = BridgeTS.getInstance().sync('{ "class" : "TestJSBinding", "object" : ' + this.ptr + ', \
         "function" : "getNumber" }');
         return Number(r);
     }
 
     public setNumber(index:number) : void {
-        BridgeTS.getInstance().sendMessage('{ "class" : "TestJSBinding", \
+        BridgeTS.getInstance().async('{ "class" : "TestJSBinding", \
         "object" : ' + this.ptr + ', \
         "function" : "setNumber", \
         "args" : [' + index + ']}');
     }
 
     public setNumber2(index:number, index2:number) : void {
-        BridgeTS.getInstance().sendMessage('{ "class" : "TestJSBinding", \
+        BridgeTS.getInstance().async('{ "class" : "TestJSBinding", \
         "object" : ' + this.ptr + ', \
         "function" : "setNumber2", \
         "args" : [' + index + ', ' + index2 + '] }');
@@ -43,7 +43,7 @@ export class TestJSBinding extends JSBinding {
 
     public static randomNumber(arg:number) : number {
         
-        let r = BridgeTS.getInstance().sendMessageSync('{ "class" : "TestJSBinding", \
+        let r = BridgeTS.getInstance().sync('{ "class" : "TestJSBinding", \
         "function" : "randomNumber", "args" : [' + arg + ']  }');
         return Number(r);
     }

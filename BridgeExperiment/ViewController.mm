@@ -9,34 +9,27 @@
 #import <WebKit/WebKit.h>
 
 #include "JSBridge.hpp"
-#include "WKJSBridgeOperator.hpp"
+#include "WKJSBridgeCommunicator.hpp"
 #include "TestJSBinding.hpp"
+#include "JSClassGenerator.hpp"
 
-//template <typename T>
-//struct classtest {
-//    classtest(T v) {
-//        value = v;
-//    };
-//    T value;
-//};
-//    using invoker = classtest<
-//        typename std::conditional<std::is_same<int, float>::value,
-//                                  int,
-//                                  float>::type>;
-//
-//    invoker t(1);
+#include "em_js.h"
+
+// TODO: parse arguments and return correct result
+//EM_JS(int, foo, (int x, int y), { return 2 * x + y; });
+
     
-
+using namespace jsbridge;
 
 @implementation ViewController {
-    std::shared_ptr<WKJSBridgeOperator> _bridgeOperator;
+    std::shared_ptr<WKJSBridgeCommunicator> _bridgeOperator;
     
     std::shared_ptr<TestJSBinding> _test;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-
+    
     WKUserContentController *controller = [[WKUserContentController alloc] init];
     [controller addScriptMessageHandler:self name:@"BridgeTS"];
     
@@ -54,24 +47,26 @@
     NSURL *path = url.URLByDeletingLastPathComponent;
     [view loadFileURL:url allowingReadAccessToURL:path];
     
-    _bridgeOperator = std::make_shared<WKJSBridgeOperator>(view);
-    jsbridge::JSBridge::getInstance().bridgeOperator = _bridgeOperator;
+    
+    jsbridge::JSBridge::registerCommunicator<WKJSBridgeCommunicator>(view);
     
     [self performSelector:@selector(registerTestObject) withObject:nil afterDelay:1];
     
+//    int r = foo(1, 2);
     // Do any additional setup after loading the view.
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.name isEqualToString:@"BridgeTS"]) {
         NSString *messageStr = message.body;
-        _bridgeOperator->recive(messageStr.UTF8String, nullptr);
+        JSBridge::recive(messageStr.UTF8String);
     }
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable))completionHandler {
      const char* data = [prompt cStringUsingEncoding:NSUTF8StringEncoding];
-    _bridgeOperator->recive(data, [=](const char* r){
+    
+    JSBridge::recive(data, [&](const char* r) {
         NSString *ret = [NSString stringWithCString:r encoding:NSUTF8StringEncoding];
         completionHandler(ret);
     });
@@ -90,7 +85,13 @@
     std::stringstream ss("App.getTestJSBinding(", std::ios_base::app |std::ios_base::out);
     ss << ptr << ");";
     
-    _bridgeOperator->send(ss.str().c_str());
+    JSBridge::eval(ss.str().c_str());
+    
+    std::string code = "(function foo() { return \"{'msg': 4567 }\"; })()";
+    JSBridge::eval(code.c_str()); 
+    
+    generateJavaScriptClassDeclaration("TempClass");
+    JSBridge::eval("var obj = new TempClass();"); 
 }
 
 float add(int a, int b) {
@@ -101,24 +102,45 @@ inline std::vector<int> *vecIntFromIntPointer(uintptr_t vec) {
   return reinterpret_cast<std::vector<int> *>(vec);
 }
 
+class TempClass {
+public:
+    TempClass() {
+        printf("TempClass constructor");
+    }
+};
+
 
 JSBridge_BINDINGS(my_module) {
     jsbridge::function("add", &add);
     
-    jsbridge::class_<TestJSBinding>("TestJSBinding")
-        .constructor<>()
-        .function("setNumber", &TestJSBinding::setNumber)
-        .function("getNumber", &TestJSBinding::getNumber)
-        .function("setNumber2", &TestJSBinding::setNumber2)
-        .function("voidPtr", &TestJSBinding::voidPtr)
+    jsbridge::class_<TempClass>("TempClass").constructor<>();
     
-        .function("copyFrom", &TestJSBinding::copyFrom)
+    jsbridge::class_<TestJSBinding>("TestJSBinding")
+    .constructor<>()
+    .function("setNumber", &TestJSBinding::setNumber)
+    .function("setNumberf", &TestJSBinding::setNumberf)
+    .function("setNumberd", &TestJSBinding::setNumberd)
+    .function("getNumber", &TestJSBinding::getNumber)
+    .function("setNumber2", &TestJSBinding::setNumber2)
+    .function("voidPtr", &TestJSBinding::voidPtr)
+
+    .function("copyFrom", &TestJSBinding::copyFrom)
+    .function("forward", &TestJSBinding::forward)
+    .function("forwardf", &TestJSBinding::forwardf)
+    .function("forwardd", &TestJSBinding::forwardd)
+//    .function("string", &TestJSBinding::string)
+//    .function("const_func", &TestJSBinding::const_func)
+    
+    
     
 //        .function("voidPtr", &TestJSBinding::voidPtr)
 //        .function("voidPtr", &TestJSBinding::voidPtr)
 //        .function("voidPtr", &TestJSBinding::voidPtr)
         .class_function("randomNumber", &TestJSBinding::randomNumber);
     
+    
+    class_<std::string>("string")
+    .function("c_str", &std::string::c_str);
     
 //    jsbridge::register_vector<int>("VectorInt").constructor(&vecIntFromIntPointer);
 }

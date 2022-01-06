@@ -11,12 +11,12 @@ export class BridgeTS {
         return BridgeTS.instance;
     }
 
-    public sendMessage(message:string) {
+    public async(message:string) {
       // TODO: do for other browsers
       (window as unknown as Window).webkit.messageHandlers.BridgeTS.postMessage(message);
     }
 
-    public sendMessageSync(message:string) : any {
+    public sync(message:string) : any {
       try {
         var res = prompt(message);
         // @ts-ignore
@@ -43,8 +43,7 @@ export class BridgeTS {
     }
 
     static add(a:number, b:number) : number {
-        let r = BridgeTS.getInstance().sendMessageSync('{ "function" : "add", \
-        "args" : [' + a + ', ' + b + '] }');
+        let r = BridgeTS.getInstance().sync('{ "function" : "add", "args" : [' + a + ', ' + b + '] }');
         return Number(r);
     }
   }

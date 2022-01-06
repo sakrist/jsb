@@ -1,9 +1,9 @@
-//
-//  bind.hpp
-//  BridgeExperiment
-//
-//  Created by Volodymyr Boichentsov on 22/12/2021.
-//
+/*
+ * Copyright 2012 The Emscripten Authors.  All rights reserved.
+ * Emscripten is available under two separate licenses, the MIT license and the
+ * University of Illinois/NCSA Open Source License.  Both these licenses can be
+ * found in the LICENSE file.
+ */
 
 #ifndef bind_hpp
 #define bind_hpp
