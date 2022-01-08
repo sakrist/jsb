@@ -25,6 +25,7 @@ using namespace jsbridge;
     std::shared_ptr<WKJSBridgeCommunicator> _bridgeOperator;
     
     std::shared_ptr<TestJSBinding> _test;
+    WKWebView *webview;
 }
 
 - (void)viewDidLoad {
@@ -37,20 +38,17 @@ using namespace jsbridge;
     [config.preferences setValue:@YES forKey:@"allowFileAccessFromFileURLs"];
     config.userContentController = controller;
     
-    WKWebView *view = [[WKWebView alloc] initWithFrame:self.view.frame configuration:config];
-    view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
-    view.UIDelegate = self;
-    [self.view addSubview:view];
+    webview = [[WKWebView alloc] initWithFrame:self.view.frame configuration:config];
+    webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    webview.UIDelegate = self;
+    [self.view addSubview:webview];
 
     
     NSURL *url = [[NSBundle mainBundle] URLForResource:@"index" withExtension:@"html"];
     NSURL *path = url.URLByDeletingLastPathComponent;
-    [view loadFileURL:url allowingReadAccessToURL:path];
+    [webview loadFileURL:url allowingReadAccessToURL:path];
     
-    
-    jsbridge::JSBridge::registerCommunicator<WKJSBridgeCommunicator>(view);
-    
-    [self performSelector:@selector(registerTestObject) withObject:nil afterDelay:1];
+    [self performSelector:@selector(runApp) withObject:nil afterDelay:1];
     
 //    int r = foo(1, 2);
     // Do any additional setup after loading the view.
@@ -59,7 +57,7 @@ using namespace jsbridge;
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.name isEqualToString:@"BridgeTS"]) {
         NSString *messageStr = message.body;
-        JSBridge::recive(messageStr.UTF8String);
+        JSBridge::recive(messageStr.UTF8String, nullptr);
     }
 }
 
@@ -78,20 +76,22 @@ using namespace jsbridge;
     // Update the view, if already loaded.
 }
 
-- (void) registerTestObject {
+- (void) runApp {
+    
+    jsbridge::JSBridge::registerCommunicator<WKJSBridgeCommunicator>(webview);
+    
     _test = std::make_shared<TestJSBinding>();
     auto ptr = reinterpret_cast<uintptr_t>(_test.get());
     
     std::stringstream ss("App.getTestJSBinding(", std::ios_base::app |std::ios_base::out);
     ss << ptr << ");";
     
-    JSBridge::eval(ss.str().c_str());
+    JSBridge::eval(ss.str().c_str(), [](const char*){});
     
     std::string code = "(function foo() { return \"{'msg': 4567 }\"; })()";
-    JSBridge::eval(code.c_str()); 
+    JSBridge::eval(code.c_str(),[](const char*){}); 
     
-    generateJavaScriptClassDeclaration("TempClass");
-    JSBridge::eval("var obj = new TempClass();"); 
+//    JSBridge::eval("(var obj = new TempClass();)()"); 
 }
 
 float add(int a, int b) {
@@ -137,10 +137,6 @@ JSBridge_BINDINGS(my_module) {
 //        .function("voidPtr", &TestJSBinding::voidPtr)
 //        .function("voidPtr", &TestJSBinding::voidPtr)
         .class_function("randomNumber", &TestJSBinding::randomNumber);
-    
-    
-    class_<std::string>("string")
-    .function("c_str", &std::string::c_str);
     
 //    jsbridge::register_vector<int>("VectorInt").constructor(&vecIntFromIntPointer);
 }

@@ -7,4 +7,9 @@
 
 #include "JSBridge.hpp"
 
+using namespace jsbridge;
 
+JSBridge_BINDINGS(default) {
+    class_<std::string>("string")
+    .function("c_str", &std::string::c_str);
+}

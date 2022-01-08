@@ -7,23 +7,23 @@
 
 #import <XCTest/XCTest.h>
 
-#include "Tests.hpp"
+#include "gtest/gtest.h"
 
 
 
 @interface BridgeExperimentTests : XCTestCase
 @end
 @implementation BridgeExperimentTests
-- (void)testExample {
+
+- (void)tests {
     // This is an example of a functional test case.
     // Use XCTAssert and related functions to verify your tests produce the correct results.
     
-    Test_simple_set_and_get();
-    
-    Test_when_function_not_from_class();
-    
-    Test_static_functions_compile();
-    
-    Test_redefinition();
+    int argc = 1;
+    char* argv[argc + 1];
+    argv[0] = "app";
+    testing::InitGoogleTest(&argc, argv);
+    int r = RUN_ALL_TESTS();
+    XCTAssert(r == 0, @"Some tests are failed!");
 }
 @end

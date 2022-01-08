@@ -21,10 +21,19 @@ export class TestJSBinding extends JSBinding {
         }
     }
 
+    public getNumber3() : Promise<number> {
+        let callid = BridgeTS.generateCallID(this.ptr);
+        var p = new Promise<number>((resolve) => {
+            TestJSBinding.promises.set(callid, resolve);
+        });
+        BridgeTS.getInstance().async('{ "class" : "TestJSBinding", "object" : ' + this.ptr + ', \
+        "function" : "getNumber",  "callback" : "TestJSBinding._callback", "cid" : "'+ callid +'"}');
+        return p;
+    }
+
     public getNumber() : number {
-        let r = BridgeTS.getInstance().sync('{ "class" : "TestJSBinding", "object" : ' + this.ptr + ', \
+        return BridgeTS.getInstance().sync('{ "class" : "TestJSBinding", "object" : ' + this.ptr + ', \
         "function" : "getNumber" }');
-        return Number(r);
     }
 
     public setNumber(index:number) : void {

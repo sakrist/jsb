@@ -10,9 +10,9 @@
 #include <string>
 #include <regex>
 
-void jsbridge::generateJavaScriptClassDeclaration(const std::string& classname) {
+void jsbridge::generateJavaScriptClassDeclaration(const std::string& classname, const std::unordered_map<std::string, std::string>& funcs) {
     
-    std::string class_var = R"(
+    std::string class_start = R"(
 var TemplateJSBinding = /*#__PURE__*/function (_JSBinding) {
     _inheritsLoose(TemplateJSBinding, _JSBinding);
 
@@ -38,16 +38,18 @@ var TemplateJSBinding = /*#__PURE__*/function (_JSBinding) {
         }
     };
 
-    var _proto = TestJSBinding.prototype;
-
-    //##declaraions##
-
-    return TemplateJSBinding;
-}(JSBinding);
-TemplateJSBinding.promises = /*#__PURE__*/new Map();)";
+    var _proto = TemplateJSBinding.prototype;
+    )";
+    class_start = std::regex_replace(class_start, std::regex("TemplateJSBinding"), classname);
+    std::stringstream ss(class_start, std::ios_base::app |std::ios_base::out);
     
-    class_var = std::regex_replace(class_var, std::regex("TemplateJSBinding"), classname);
+    // function declaraions
+    for (auto& [key, value] : funcs) {
+        ss << value << "\n";
+    }
     
-    jsbridge::JSBridge::eval(class_var.c_str());
-   
+    // class end
+    ss << "return " << classname << "; }(JSBinding);" <<  classname << ".promises = /*#__PURE__*/new Map();";
+    
+    jsbridge::JSBridge::eval(ss.str().c_str(),[](const char*){});
 }

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D26E9CC2278A34EA001C1EFD /* TestJSClassGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */; };
+		D26E9E31278A3E7C001C1EFD /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D26E9DAD278A3E7B001C1EFD /* README.md */; };
+		D26E9E48278A3E7C001C1EFD /* gtest-all.cc in Sources */ = {isa = PBXBuildFile; fileRef = D26E9DD7278A3E7C001C1EFD /* gtest-all.cc */; };
 		D28CDDDB277DD797009901AC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D28CDDDA277DD797009901AC /* AppDelegate.m */; };
 		D28CDDE0277DD79F009901AC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D28CDDDF277DD79F009901AC /* Assets.xcassets */; };
 		D28CDDE3277DD79F009901AC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D28CDDE1277DD79F009901AC /* Main.storyboard */; };
@@ -21,7 +24,7 @@
 		D28CDE24277DD8FE009901AC /* bridgets.cjs.production.min.js in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE21277DD8FE009901AC /* bridgets.cjs.production.min.js */; };
 		D28CDE25277DD8FE009901AC /* bridgets.cjs.development.js in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE23277DD8FE009901AC /* bridgets.cjs.development.js */; };
 		D28CDE31277DD963009901AC /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D28CDE30277DD963009901AC /* WebKit.framework */; };
-		D2AE454B27848F4100803E36 /* Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE454927848F4100803E36 /* Tests.cpp */; };
+		D2AE454B27848F4100803E36 /* class__Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE454927848F4100803E36 /* class__Tests.cpp */; };
 		D2AE45592786459400803E36 /* JSClassGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE45572786459400803E36 /* JSClassGenerator.cpp */; };
 /* End PBXBuildFile section */
 
@@ -48,6 +51,31 @@
 		D25785C0277F5BC800F4B3E0 /* val.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = val.hpp; sourceTree = "<group>"; };
 		D25785C1277F5BC800F4B3E0 /* wire.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = wire.hpp; sourceTree = "<group>"; };
 		D25785C2277F5BC800F4B3E0 /* bind.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = bind.hpp; sourceTree = "<group>"; };
+		D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TestJSClassGenerator.cpp; sourceTree = "<group>"; };
+		D26E9D9F278A3E7B001C1EFD /* gtest-matchers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-matchers.h"; sourceTree = "<group>"; };
+		D26E9DA0278A3E7B001C1EFD /* gtest-death-test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-death-test.h"; sourceTree = "<group>"; };
+		D26E9DA1278A3E7B001C1EFD /* gtest-spi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-spi.h"; sourceTree = "<group>"; };
+		D26E9DA3278A3E7B001C1EFD /* gtest-string.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-string.h"; sourceTree = "<group>"; };
+		D26E9DA4278A3E7B001C1EFD /* gtest-death-test-internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-death-test-internal.h"; sourceTree = "<group>"; };
+		D26E9DA5278A3E7B001C1EFD /* gtest-port.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-port.h"; sourceTree = "<group>"; };
+		D26E9DA6278A3E7B001C1EFD /* gtest-port-arch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-port-arch.h"; sourceTree = "<group>"; };
+		D26E9DA7278A3E7B001C1EFD /* gtest-internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-internal.h"; sourceTree = "<group>"; };
+		D26E9DA8278A3E7B001C1EFD /* gtest-param-util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-param-util.h"; sourceTree = "<group>"; };
+		D26E9DA9278A3E7B001C1EFD /* gtest-type-util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-type-util.h"; sourceTree = "<group>"; };
+		D26E9DAA278A3E7B001C1EFD /* gtest-filepath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-filepath.h"; sourceTree = "<group>"; };
+		D26E9DAC278A3E7B001C1EFD /* gtest-port.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-port.h"; sourceTree = "<group>"; };
+		D26E9DAD278A3E7B001C1EFD /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		D26E9DAE278A3E7B001C1EFD /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gtest.h; sourceTree = "<group>"; };
+		D26E9DAF278A3E7B001C1EFD /* gtest-printers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-printers.h"; sourceTree = "<group>"; };
+		D26E9DB0278A3E7B001C1EFD /* gtest-message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-message.h"; sourceTree = "<group>"; };
+		D26E9DB1278A3E7B001C1EFD /* gtest-param-test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-param-test.h"; sourceTree = "<group>"; };
+		D26E9DB2278A3E7B001C1EFD /* gtest-typed-test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-typed-test.h"; sourceTree = "<group>"; };
+		D26E9DB3278A3E7B001C1EFD /* gtest_pred_impl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gtest_pred_impl.h; sourceTree = "<group>"; };
+		D26E9DB4278A3E7B001C1EFD /* gtest_prod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gtest_prod.h; sourceTree = "<group>"; };
+		D26E9DB5278A3E7B001C1EFD /* gtest-test-part.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-test-part.h"; sourceTree = "<group>"; };
+		D26E9DB6278A3E7B001C1EFD /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gtest.h; sourceTree = "<group>"; };
+		D26E9DB7278A3E7B001C1EFD /* gtest-printers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-printers.h"; sourceTree = "<group>"; };
+		D26E9DD7278A3E7C001C1EFD /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "gtest-all.cc"; sourceTree = "<group>"; };
 		D28CDDD6277DD797009901AC /* BridgeExperiment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BridgeExperiment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D28CDDD9277DD797009901AC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D28CDDDA277DD797009901AC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -77,8 +105,7 @@
 		D28CDE22277DD8FE009901AC /* bridgets.cjs.production.min.js.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; name = bridgets.cjs.production.min.js.map; path = BridgeTS/dist/bridgets.cjs.production.min.js.map; sourceTree = SOURCE_ROOT; };
 		D28CDE23277DD8FE009901AC /* bridgets.cjs.development.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bridgets.cjs.development.js; path = BridgeTS/dist/bridgets.cjs.development.js; sourceTree = SOURCE_ROOT; };
 		D28CDE30277DD963009901AC /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		D2AE454927848F4100803E36 /* Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Tests.cpp; sourceTree = "<group>"; };
-		D2AE454A27848F4100803E36 /* Tests.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Tests.hpp; sourceTree = "<group>"; };
+		D2AE454927848F4100803E36 /* class__Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = class__Tests.cpp; sourceTree = "<group>"; };
 		D2AE45522784BA6500803E36 /* em_asm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_asm.h; sourceTree = "<group>"; };
 		D2AE45532784BA6500803E36 /* em_js.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_js.h; sourceTree = "<group>"; };
 		D2AE45572786459400803E36 /* JSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSClassGenerator.cpp; sourceTree = "<group>"; };
@@ -124,6 +151,78 @@
 			path = emsdk;
 			sourceTree = "<group>";
 		};
+		D26E9D40278A3E7A001C1EFD /* googletest */ = {
+			isa = PBXGroup;
+			children = (
+				D26E9D9D278A3E7B001C1EFD /* include */,
+				D26E9DCE278A3E7C001C1EFD /* src */,
+			);
+			name = googletest;
+			path = gtest/googletest;
+			sourceTree = "<group>";
+		};
+		D26E9D9D278A3E7B001C1EFD /* include */ = {
+			isa = PBXGroup;
+			children = (
+				D26E9D9E278A3E7B001C1EFD /* gtest */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		D26E9D9E278A3E7B001C1EFD /* gtest */ = {
+			isa = PBXGroup;
+			children = (
+				D26E9D9F278A3E7B001C1EFD /* gtest-matchers.h */,
+				D26E9DA0278A3E7B001C1EFD /* gtest-death-test.h */,
+				D26E9DA1278A3E7B001C1EFD /* gtest-spi.h */,
+				D26E9DA2278A3E7B001C1EFD /* internal */,
+				D26E9DB0278A3E7B001C1EFD /* gtest-message.h */,
+				D26E9DB1278A3E7B001C1EFD /* gtest-param-test.h */,
+				D26E9DB2278A3E7B001C1EFD /* gtest-typed-test.h */,
+				D26E9DB3278A3E7B001C1EFD /* gtest_pred_impl.h */,
+				D26E9DB4278A3E7B001C1EFD /* gtest_prod.h */,
+				D26E9DB5278A3E7B001C1EFD /* gtest-test-part.h */,
+				D26E9DB6278A3E7B001C1EFD /* gtest.h */,
+				D26E9DB7278A3E7B001C1EFD /* gtest-printers.h */,
+			);
+			path = gtest;
+			sourceTree = "<group>";
+		};
+		D26E9DA2278A3E7B001C1EFD /* internal */ = {
+			isa = PBXGroup;
+			children = (
+				D26E9DA3278A3E7B001C1EFD /* gtest-string.h */,
+				D26E9DA4278A3E7B001C1EFD /* gtest-death-test-internal.h */,
+				D26E9DA5278A3E7B001C1EFD /* gtest-port.h */,
+				D26E9DA6278A3E7B001C1EFD /* gtest-port-arch.h */,
+				D26E9DA7278A3E7B001C1EFD /* gtest-internal.h */,
+				D26E9DA8278A3E7B001C1EFD /* gtest-param-util.h */,
+				D26E9DA9278A3E7B001C1EFD /* gtest-type-util.h */,
+				D26E9DAA278A3E7B001C1EFD /* gtest-filepath.h */,
+				D26E9DAB278A3E7B001C1EFD /* custom */,
+			);
+			path = internal;
+			sourceTree = "<group>";
+		};
+		D26E9DAB278A3E7B001C1EFD /* custom */ = {
+			isa = PBXGroup;
+			children = (
+				D26E9DAC278A3E7B001C1EFD /* gtest-port.h */,
+				D26E9DAD278A3E7B001C1EFD /* README.md */,
+				D26E9DAE278A3E7B001C1EFD /* gtest.h */,
+				D26E9DAF278A3E7B001C1EFD /* gtest-printers.h */,
+			);
+			path = custom;
+			sourceTree = "<group>";
+		};
+		D26E9DCE278A3E7C001C1EFD /* src */ = {
+			isa = PBXGroup;
+			children = (
+				D26E9DD7278A3E7C001C1EFD /* gtest-all.cc */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		D28CDDCD277DD797009901AC = {
 			isa = PBXGroup;
 			children = (
@@ -154,12 +253,12 @@
 				D28CDE20277DD8FE009901AC /* bridgets.cjs.development.js.map */,
 				D28CDE21277DD8FE009901AC /* bridgets.cjs.production.min.js */,
 				D28CDE22277DD8FE009901AC /* bridgets.cjs.production.min.js.map */,
+				D28CDE0F277DD8D4009901AC /* index.html */,
 				D28CDE1F277DD8EC009901AC /* json.hpp */,
 				D28CDDD9277DD797009901AC /* AppDelegate.h */,
 				D28CDDDA277DD797009901AC /* AppDelegate.m */,
 				D28CDDDC277DD797009901AC /* ViewController.h */,
 				D28CDE10277DD8D4009901AC /* ViewController.mm */,
-				D28CDE0F277DD8D4009901AC /* index.html */,
 				D2AE45572786459400803E36 /* JSClassGenerator.cpp */,
 				D2AE45582786459400803E36 /* JSClassGenerator.hpp */,
 				D28CDE11277DD8D4009901AC /* JSBridge.cpp */,
@@ -180,8 +279,9 @@
 		D28CDDEF277DD7A0009901AC /* BridgeExperimentTests */ = {
 			isa = PBXGroup;
 			children = (
-				D2AE454927848F4100803E36 /* Tests.cpp */,
-				D2AE454A27848F4100803E36 /* Tests.hpp */,
+				D26E9D40278A3E7A001C1EFD /* googletest */,
+				D2AE454927848F4100803E36 /* class__Tests.cpp */,
+				D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */,
 				D28CDDF0277DD7A0009901AC /* BridgeExperimentTests.mm */,
 				D28CDDF2277DD7A0009901AC /* Info.plist */,
 			);
@@ -319,6 +419,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D26E9E31278A3E7C001C1EFD /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -351,7 +452,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				D28CDDF1277DD7A0009901AC /* BridgeExperimentTests.mm in Sources */,
-				D2AE454B27848F4100803E36 /* Tests.cpp in Sources */,
+				D26E9CC2278A34EA001C1EFD /* TestJSClassGenerator.cpp in Sources */,
+				D26E9E48278A3E7C001C1EFD /* gtest-all.cc in Sources */,
+				D2AE454B27848F4100803E36 /* class__Tests.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -548,6 +651,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = DHKZ7WR43P;
+				HEADER_SEARCH_PATHS = (
+					$SRCROOT/BridgeExperimentTests/gtest/googletest/include,
+					"$SRCROOT/BridgeExperimentTests/gtest/googletest/**",
+				);
 				INFOPLIST_FILE = BridgeExperimentTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -568,6 +675,10 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = DHKZ7WR43P;
+				HEADER_SEARCH_PATHS = (
+					$SRCROOT/BridgeExperimentTests/gtest/googletest/include,
+					"$SRCROOT/BridgeExperimentTests/gtest/googletest/**",
+				);
 				INFOPLIST_FILE = BridgeExperimentTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

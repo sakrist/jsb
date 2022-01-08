@@ -1,25 +1,17 @@
 //
-//  Tests.hpp
+//  class__Tests.cpp
 //  BridgeExperimentTests
 //
 //  Created by Volodymyr Boichentsov on 04/01/2022.
 //
 
-#ifndef Tests_hpp
-#define Tests_hpp
-
-#pragma once
-
-#include <stdio.h>
-
+#include "gtest/gtest.h"
 #include "json.hpp"
 using json = nlohmann::json;
 
 #include "JSBridge.hpp"
 
 using namespace jsbridge;
-
-#define TEST(category, name) void category##_##name() 
 
 
 class TestSimple {
@@ -39,7 +31,7 @@ JSBridge_BINDINGS(TestSimple_module) {
     .function("getNumber", &TestSimple::getNumber);
 }
 
-void Test_simple_set_and_get() {
+TEST(class_Tests, simple_set_and_get) {
     auto test = std::make_shared<TestSimple>();
     uintptr_t ptrObject = reinterpret_cast<uintptr_t>(test.get());
     
@@ -58,7 +50,7 @@ void Test_simple_set_and_get() {
         
         json obj = json::parse(result);
         auto r = obj["r"].get<int>();
-        assert(test->number == r);
+        ASSERT_TRUE(test->number == r);
     };
     JSBridge::getInstance().recive(message2);
 }
@@ -89,14 +81,14 @@ public:
 };
 
 
-void Test_when_function_not_from_class() {
+TEST(class_Tests, when_function_not_from_class) {
     // TODO: should not compile
     class_<TestCompilation>("TestCompilation2")
     .function("setNumber", &TestSimple::setNumber)
     .function("getNumber", &TestSimple::getNumber);
 }
 
-void Test_static_functions_compile() {
+TEST(class_Tests, static_functions_compile) {
     class_<TestCompilation>("TestCompilation")
     .function("setNumber", &TestCompilation::setNumber)
     .function("getNumber", &TestCompilation::getNumber)
@@ -105,13 +97,12 @@ void Test_static_functions_compile() {
     .class_function("getIntMax", &TestCompilation::getIntMax);
 }
 
-void Test_redefinition() {
+TEST(class_Tests, redefinition) {
     try {
         class_<TestCompilation>("TestCompilation");
-        assert(0);
+        ASSERT_TRUE(false);
     } catch (const std::logic_error& error) {
         printf("%s", error.what());
+        ASSERT_TRUE(true);
     }
 }
-
-#endif /* Tests_hpp */
