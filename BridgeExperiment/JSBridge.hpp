@@ -16,6 +16,7 @@
 #include <unordered_map>
 #include <functional>
 #include <variant>
+#include <string>
 #include <type_traits>
 #include "JSClassGenerator.hpp"
 
@@ -47,6 +48,7 @@ struct compatible_type {
                                           || std::is_same_v<T, float>
                                           || std::is_same_v<T, double>
                                           || std::is_same_v<T, uintptr_t>
+                                          || std::is_same_v<T, std::string>
                                           || std::is_pointer_v<T>
                                           );
 };
@@ -128,6 +130,7 @@ struct JSInvokeMessage {
     
     int args_count{ 0 };
     JSArg args[3];
+    std::string argss;
 };
 
 struct FunctionInvokerBase {
@@ -148,10 +151,7 @@ using ClassesMap = std::unordered_map<std::string, std::unique_ptr<base_class_>>
 
 class JSBridge {
 public:
-    static JSBridge& getInstance() {
-        static JSBridge instance;
-        return instance;
-    }
+    static JSBridge& getInstance();
     
     JSBridge(const JSBridge&) = delete;
     void operator=(const JSBridge&) = delete;
@@ -231,15 +231,19 @@ JSBRIDGE_ALWAYS_INLINE static void functionReturn(const JSInvokeMessage& message
     
     if (message.completion) {
         std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
-        ss << "{\"r\":";
+        
         if constexpr (std::is_pointer_v<R>) {
             ss << reinterpret_cast<uintptr_t>(value);
+        } else if constexpr (std::is_same_v<R, std::string>) {
+            ss << value;
         } else {
             ss << value;
         }
         // TODO: if it's going to be string then we need ""
-        ss << "}";
-        
+#if DEBUG
+        std::cout << "return: " << ss.str() << std::endl;
+#endif
+
         message.completion(ss.str().c_str());
     } else {
         // async approach
@@ -300,9 +304,9 @@ private:
 };
 
 template<typename ReturnType, typename ClassType, typename... Args>
-struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const noexcept> : public FunctionInvokerBase {
+struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public FunctionInvokerBase {
     
-    FunctionInvoker(ReturnType (ClassType::*f)(Args...) const noexcept) : _f(f){
+    FunctionInvoker(ReturnType (ClassType::*f)(Args...) const) : _f(f){
         static_assert(compatible_type_v<std::remove_cv_t<ReturnType>>, "incompatible return type");
     }
       
@@ -335,7 +339,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const noexcept> : publ
     inline static constexpr int args_count = sizeof...(Args);
     
 private:
-    ReturnType (ClassType::*_f)(Args...) const noexcept;
+    ReturnType (ClassType::*_f)(Args...) const;
 };
 
 

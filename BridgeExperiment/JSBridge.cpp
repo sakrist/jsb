@@ -9,7 +9,12 @@
 
 using namespace jsbridge;
 
-JSBridge_BINDINGS(default) {
-    class_<std::string>("string")
-    .function("c_str", &std::string::c_str);
+ JSBridge& JSBridge::getInstance() {
+    static JSBridge instance;
+    return instance;
 }
+
+//JSBridge_BINDINGS(default) {
+//    class_<std::string>("string")
+//    .function("c_str", &std::string::c_str);
+//}

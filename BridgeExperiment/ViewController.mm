@@ -41,6 +41,7 @@ using namespace jsbridge;
     webview = [[WKWebView alloc] initWithFrame:self.view.frame configuration:config];
     webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     webview.UIDelegate = self;
+    webview.navigationDelegate = self;
     [self.view addSubview:webview];
 
     
@@ -48,10 +49,14 @@ using namespace jsbridge;
     NSURL *path = url.URLByDeletingLastPathComponent;
     [webview loadFileURL:url allowingReadAccessToURL:path];
     
-    [self performSelector:@selector(runApp) withObject:nil afterDelay:1];
-    
 //    int r = foo(1, 2);
     // Do any additional setup after loading the view.
+}
+
+- (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
+    jsbridge::JSBridge::registerCommunicator<WKJSBridgeCommunicator>(webview);
+    
+    [self runApp];
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
@@ -78,7 +83,6 @@ using namespace jsbridge;
 
 - (void) runApp {
     
-    jsbridge::JSBridge::registerCommunicator<WKJSBridgeCommunicator>(webview);
     
     _test = std::make_shared<TestJSBinding>();
     auto ptr = reinterpret_cast<uintptr_t>(_test.get());
@@ -89,7 +93,7 @@ using namespace jsbridge;
     JSBridge::eval(ss.str().c_str(), [](const char*){});
     
     std::string code = "(function foo() { return \"{'msg': 4567 }\"; })()";
-    JSBridge::eval(code.c_str(),[](const char*){}); 
+    JSBridge::eval(code.c_str(), [](const char*){}); 
     
 //    JSBridge::eval("(var obj = new TempClass();)()"); 
 }
@@ -128,8 +132,11 @@ JSBridge_BINDINGS(my_module) {
     .function("forward", &TestJSBinding::forward)
     .function("forwardf", &TestJSBinding::forwardf)
     .function("forwardd", &TestJSBinding::forwardd)
-//    .function("string", &TestJSBinding::string)
-//    .function("const_func", &TestJSBinding::const_func)
+    
+    .function("string2", &TestJSBinding::string2)
+    .function("string", &TestJSBinding::string)
+    
+    .function("const_func", &TestJSBinding::const_func)
     
     
     

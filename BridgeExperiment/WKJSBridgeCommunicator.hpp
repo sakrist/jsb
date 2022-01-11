@@ -41,6 +41,10 @@ public:
         
         auto& args = json["args"];
         if (!args.is_null() && args.is_array() && args.size() > 0) {
+        
+//            std::stringstream ss("", std::ios_base::app |std::ios_base::out);
+//            ss << json["args"];
+//            msgStruct.argss = ss.str();
             
             // TODO: read types from function!!
             msgStruct.args[0] = args[0].get<int>();

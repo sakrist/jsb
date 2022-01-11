@@ -25,13 +25,11 @@ public:
     int number = 0;
 };
 
-JSBridge_BINDINGS(TestSimple_module) {
+TEST(class_Tests, simple_set_and_get) {
     class_<TestSimple>("TestSimple")
     .function("setNumber", &TestSimple::setNumber)
     .function("getNumber", &TestSimple::getNumber);
-}
-
-TEST(class_Tests, simple_set_and_get) {
+    
     auto test = std::make_shared<TestSimple>();
     uintptr_t ptrObject = reinterpret_cast<uintptr_t>(test.get());
     
@@ -49,7 +47,7 @@ TEST(class_Tests, simple_set_and_get) {
     message2.completion = [=](const char* result){ 
         
         json obj = json::parse(result);
-        auto r = obj["r"].get<int>();
+        auto r = obj.get<int>();
         ASSERT_TRUE(test->number == r);
     };
     JSBridge::getInstance().recive(message2);
@@ -71,9 +69,24 @@ public:
     float getFNumber() {
         return fnumber;
     }
+    char * getCharPtr() {
+        return string;
+    }
+    
+    std::string str0() {
+        return str;
+    }
+    std::string& str1() {
+        return str;
+    }
+    std::string* str2() {
+        return &str;
+    }
+    
+    std::string str {"hello"};
     float fnumber = 0;
     int number = 0;
-    
+    char string[10] = "test\0";
     static void runTest() {}
     
     static double getDoubleMax() { return std::numeric_limits<double>::max(); }
@@ -83,13 +96,13 @@ public:
 
 TEST(class_Tests, when_function_not_from_class) {
     // TODO: should not compile
-    class_<TestCompilation>("TestCompilation2")
+    class_<TestCompilation>("TestCompilation0")
     .function("setNumber", &TestSimple::setNumber)
     .function("getNumber", &TestSimple::getNumber);
 }
 
 TEST(class_Tests, static_functions_compile) {
-    class_<TestCompilation>("TestCompilation")
+    class_<TestCompilation>("TestCompilation1")
     .function("setNumber", &TestCompilation::setNumber)
     .function("getNumber", &TestCompilation::getNumber)
     .class_function("runTest", &TestCompilation::runTest)
@@ -99,10 +112,50 @@ TEST(class_Tests, static_functions_compile) {
 
 TEST(class_Tests, redefinition) {
     try {
-        class_<TestCompilation>("TestCompilation");
+        class_<TestCompilation>("TestCompilation1");
         ASSERT_TRUE(false);
     } catch (const std::logic_error& error) {
         printf("%s", error.what());
         ASSERT_TRUE(true);
     }
+}
+
+
+TEST(class_Tests, char_pointer) {
+    class_<TestCompilation>("TestCompilation")
+    .function("getCharPtr", &TestCompilation::getCharPtr);
+}
+
+
+TEST(class_Tests, string) {
+    class_<TestCompilation>("TestCompilation3")
+    .function("str0", &TestCompilation::str0)
+//    .function("str1", &TestCompilation::str1) // TODO: must be compilable
+    .function("str2", &TestCompilation::str2)
+    ;
+}
+
+
+class SpeedTest {
+public:    
+    void fromjs(long time) {
+        std::cout << "got milliseconds from js: "
+                  << time << '\n';
+        
+        const auto p1 = std::chrono::system_clock::now();
+     
+        std::cout << "milliseconds since epoch: "
+                  << std::chrono::duration_cast<std::chrono::milliseconds>(
+                       p1.time_since_epoch()).count() << '\n';
+    }
+};
+
+TEST(class_Tests, speedtest) {
+    jsbridge::class_<SpeedTest>("SpeedTest")
+    .constructor<>()
+    .function("fromjs", &SpeedTest::fromjs)
+    .registerJS();
+
+    std::string code = "var speedTester = new SpeedTest(); speedTester.fromjs(Date.now());";
+    JSBridge::getInstance().eval(code.c_str(), [](const char*){});
 }
