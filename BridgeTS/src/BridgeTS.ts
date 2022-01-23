@@ -18,10 +18,7 @@ export class BridgeTS {
 
     public sync(message:string) : any {
       try {
-        var res = prompt(message);
-        // @ts-ignore
-        let object = JSON.parse(res);
-        return object.r;
+        return prompt(message);
       } catch (error) {
         console.log('The native context does not exist yet');
       }
@@ -40,10 +37,5 @@ export class BridgeTS {
       if(resolve) {
           resolve(value);
       }
-    }
-
-    static add(a:number, b:number) : number {
-        let r = BridgeTS.getInstance().sync('{ "function" : "add", "args" : [' + a + ', ' + b + '] }');
-        return Number(r);
     }
   }

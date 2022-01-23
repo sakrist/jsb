@@ -33,14 +33,14 @@ TEST(class_Tests, simple_set_and_get) {
     auto test = std::make_shared<TestSimple>();
     uintptr_t ptrObject = reinterpret_cast<uintptr_t>(test.get());
     
-    JSInvokeMessage message1;
+    JSMessageDescriptor message1;
     message1.object = ptrObject;
     message1.class_id = "TestSimple";
     message1.function = "setNumber";
     message1.args[0] = 2;
     JSBridge::getInstance().recive(message1);
     
-    JSInvokeMessage message2;
+    JSMessageDescriptor message2;
     message2.object = ptrObject;
     message2.class_id = "TestSimple";
     message2.function = "getNumber";
@@ -156,6 +156,53 @@ TEST(class_Tests, speedtest) {
     .function("fromjs", &SpeedTest::fromjs)
     .registerJS();
 
-    std::string code = "var speedTester = new SpeedTest(); speedTester.fromjs(Date.now());";
-    JSBridge::getInstance().eval(code.c_str(), [](const char*){});
+    std::string code = "var st = new SpeedTest(); st.fromjs(Date.now());";
+//    JSBridge::eval(code.c_str());
 }
+
+
+TEST(JSBridge_eval, simple) {
+    std::string code = "(function foo() {  })()";
+    JSBridge::eval(code.c_str());
+}
+
+TEST(JSBridge_eval, return_text_no_block) {
+    std::string code = "(function foo() { return \"text space\"; })()";
+    JSBridge::eval(code.c_str());
+}
+
+TEST(JSBridge_eval, return_text_with_block) {
+    std::string code = "(function foo() { return \"text space\"; })()";
+    JSBridge::eval(code.c_str(), [](const char* msg){
+        ASSERT_TRUE(strcmp(msg, "text space") == 0);
+    });
+}
+
+
+TEST(JSBridge_eval, return_json) {
+    std::string code = "(function foo() { return \"{ \\\"msg\\\": 4567 }\"; })()";
+    JSBridge::eval(code.c_str(), [](const char* msg){
+        json obj = json::parse(msg);
+        int val = obj["msg"].get<int>(); 
+        ASSERT_EQ(val, 4567);
+    });
+}
+
+TEST(JSBridge_eval, async) {
+    bool hit = false;
+    std::string code = "(function foo() { return \"1\"; })()";
+    JSBridge::eval(code.c_str(), [&hit](const char* msg){
+        hit = true;
+    });
+    ASSERT_FALSE(hit);
+}
+
+
+//TEST(JSBridge_eval, return_object) {
+//    bool hit = false;
+//    std::string code = "(function foo() { return new Object(); })()";
+//    JSBridge::eval(code.c_str(), [&hit](const char* msg){
+//        hit = true;
+//    });
+//    
+//}

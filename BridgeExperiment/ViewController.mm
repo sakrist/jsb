@@ -49,14 +49,11 @@ using namespace jsbridge;
     NSURL *path = url.URLByDeletingLastPathComponent;
     [webview loadFileURL:url allowingReadAccessToURL:path];
     
-//    int r = foo(1, 2);
     // Do any additional setup after loading the view.
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
     jsbridge::JSBridge::registerCommunicator<WKJSBridgeCommunicator>(webview);
-    
-    [self runApp];
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
@@ -70,7 +67,8 @@ using namespace jsbridge;
      const char* data = [prompt cStringUsingEncoding:NSUTF8StringEncoding];
     
     JSBridge::recive(data, [&](const char* r) {
-        NSString *ret = [NSString stringWithCString:r encoding:NSUTF8StringEncoding];
+        NSString *ret = [[NSString alloc] initWithBytesNoCopy:(void*)r length:strlen(r) encoding:NSUTF8StringEncoding freeWhenDone:NO];
+//        NSString *ret = [NSString stringWithCString:r encoding:NSUTF8StringEncoding];
         completionHandler(ret);
     });
 }
@@ -79,23 +77,6 @@ using namespace jsbridge;
     [super setRepresentedObject:representedObject];
 
     // Update the view, if already loaded.
-}
-
-- (void) runApp {
-    
-    
-    _test = std::make_shared<TestJSBinding>();
-    auto ptr = reinterpret_cast<uintptr_t>(_test.get());
-    
-    std::stringstream ss("App.getTestJSBinding(", std::ios_base::app |std::ios_base::out);
-    ss << ptr << ");";
-    
-    JSBridge::eval(ss.str().c_str(), [](const char*){});
-    
-    std::string code = "(function foo() { return \"{'msg': 4567 }\"; })()";
-    JSBridge::eval(code.c_str(), [](const char*){}); 
-    
-//    JSBridge::eval("(var obj = new TempClass();)()"); 
 }
 
 float add(int a, int b) {

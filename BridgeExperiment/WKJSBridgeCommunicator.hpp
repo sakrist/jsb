@@ -19,9 +19,9 @@ class WKJSBridgeCommunicator : public jsbridge::JSBridgeCommunicator {
 public:
     WKJSBridgeCommunicator(WKWebView *view);
     
-    void eval(const char* js_code, std::function<void(const char*)> completion) const override;
+    void eval(const char* js_code, std::function<void(const char*)>&& completion) const override;
     
-    void recive(const char* message, std::function<void(const char*)> completion) const override {
+    void recive(const char* message, std::function<void(const char*)>&& completion) const override {
         
         auto json = json::parse(message);
 #if DEBUG
@@ -34,7 +34,7 @@ public:
         
         std::string classid = json["class"].is_null() ? "" : json["class"];
         
-        jsbridge::JSInvokeMessage msgStruct = { ptr, std::move(classid), json["function"],
+        jsbridge::JSMessageDescriptor msgStruct = { ptr, std::move(classid), json["function"],
             std::move(callback), std::move(callback_id) };
         
         msgStruct.completion = completion;

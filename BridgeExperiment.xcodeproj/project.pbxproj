@@ -21,8 +21,6 @@
 		D28CDE19277DD8D5009901AC /* JSBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE11277DD8D4009901AC /* JSBridge.cpp */; };
 		D28CDE1A277DD8D5009901AC /* TestJSBinding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE12277DD8D5009901AC /* TestJSBinding.cpp */; };
 		D28CDE1B277DD8D5009901AC /* WKJSBridgeCommunicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE13277DD8D5009901AC /* WKJSBridgeCommunicator.mm */; };
-		D28CDE24277DD8FE009901AC /* bridgets.cjs.production.min.js in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE21277DD8FE009901AC /* bridgets.cjs.production.min.js */; };
-		D28CDE25277DD8FE009901AC /* bridgets.cjs.development.js in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE23277DD8FE009901AC /* bridgets.cjs.development.js */; };
 		D28CDE31277DD963009901AC /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D28CDE30277DD963009901AC /* WebKit.framework */; };
 		D2AE454B27848F4100803E36 /* class__Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE454927848F4100803E36 /* class__Tests.cpp */; };
 		D2AE45592786459400803E36 /* JSClassGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE45572786459400803E36 /* JSClassGenerator.cpp */; };
@@ -100,10 +98,6 @@
 		D28CDE15277DD8D5009901AC /* WKJSBridgeCommunicator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WKJSBridgeCommunicator.hpp; sourceTree = "<group>"; };
 		D28CDE16277DD8D5009901AC /* TestJSBinding.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TestJSBinding.hpp; sourceTree = "<group>"; };
 		D28CDE1F277DD8EC009901AC /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = SOURCE_ROOT; };
-		D28CDE20277DD8FE009901AC /* bridgets.cjs.development.js.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; name = bridgets.cjs.development.js.map; path = BridgeTS/dist/bridgets.cjs.development.js.map; sourceTree = SOURCE_ROOT; };
-		D28CDE21277DD8FE009901AC /* bridgets.cjs.production.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bridgets.cjs.production.min.js; path = BridgeTS/dist/bridgets.cjs.production.min.js; sourceTree = SOURCE_ROOT; };
-		D28CDE22277DD8FE009901AC /* bridgets.cjs.production.min.js.map */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = "sourcecode.module-map"; name = bridgets.cjs.production.min.js.map; path = BridgeTS/dist/bridgets.cjs.production.min.js.map; sourceTree = SOURCE_ROOT; };
-		D28CDE23277DD8FE009901AC /* bridgets.cjs.development.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = bridgets.cjs.development.js; path = BridgeTS/dist/bridgets.cjs.development.js; sourceTree = SOURCE_ROOT; };
 		D28CDE30277DD963009901AC /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		D2AE454927848F4100803E36 /* class__Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = class__Tests.cpp; sourceTree = "<group>"; };
 		D2AE45522784BA6500803E36 /* em_asm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_asm.h; sourceTree = "<group>"; };
@@ -249,10 +243,6 @@
 		D28CDDD8277DD797009901AC /* BridgeExperiment */ = {
 			isa = PBXGroup;
 			children = (
-				D28CDE23277DD8FE009901AC /* bridgets.cjs.development.js */,
-				D28CDE20277DD8FE009901AC /* bridgets.cjs.development.js.map */,
-				D28CDE21277DD8FE009901AC /* bridgets.cjs.production.min.js */,
-				D28CDE22277DD8FE009901AC /* bridgets.cjs.production.min.js.map */,
 				D28CDE0F277DD8D4009901AC /* index.html */,
 				D28CDE1F277DD8EC009901AC /* json.hpp */,
 				D28CDDD9277DD797009901AC /* AppDelegate.h */,
@@ -408,9 +398,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D28CDE17277DD8D5009901AC /* index.html in Resources */,
-				D28CDE25277DD8FE009901AC /* bridgets.cjs.development.js in Resources */,
 				D28CDDE0277DD79F009901AC /* Assets.xcassets in Resources */,
-				D28CDE24277DD8FE009901AC /* bridgets.cjs.production.min.js in Resources */,
 				D28CDDE3277DD79F009901AC /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

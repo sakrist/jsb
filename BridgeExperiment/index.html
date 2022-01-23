@@ -1,6 +1,21 @@
 <html>
 <body>
-<script src="./bridgets.cjs.development.js"></script>
+<script>
+function log(txt) {
+  // @ts-ignore
+  document.getElementById('msg').innerHTML += txt + '<br>';
+}
+
+function tester() {
+  var object = new TestJSBinding();
+  object.setNumber(10);
+  var value2 = object.getNumber();
+  log('new TestJSBinding getNumber should be 10 and it is: ' + value2);
+  var value3 = TestJSBinding.randomNumber(10);
+  log('new TestJSBinding randomNumber to 10: ' + value3);
+} // @ts-ignore
+
+</script>
 <p style="color:red;" id="demo">Hello!</p>
 <button onclick="window.tester()">Run test</button>
 <div id='msg'></div>
