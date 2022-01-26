@@ -9,9 +9,9 @@
 #include "json.hpp"
 using json = nlohmann::json;
 
-#include "JSBridge.hpp"
+#include "Bridge.hpp"
 
-using namespace jsbridge;
+using namespace jsb;
 
 
 class TestSimple {
@@ -38,7 +38,7 @@ TEST(class_Tests, simple_set_and_get) {
     message1.class_id = "TestSimple";
     message1.function = "setNumber";
     message1.args[0] = 2;
-    JSBridge::getInstance().recive(message1);
+    Bridge::getInstance().recive(message1);
     
     JSMessageDescriptor message2;
     message2.object = ptrObject;
@@ -50,7 +50,7 @@ TEST(class_Tests, simple_set_and_get) {
         auto r = obj.get<int>();
         ASSERT_TRUE(test->number == r);
     };
-    JSBridge::getInstance().recive(message2);
+    Bridge::getInstance().recive(message2);
 }
 
 
@@ -151,29 +151,29 @@ public:
 };
 
 TEST(class_Tests, speedtest) {
-    jsbridge::class_<SpeedTest>("SpeedTest")
+    jsb::class_<SpeedTest>("SpeedTest")
     .constructor<>()
     .function("fromjs", &SpeedTest::fromjs)
     .registerJS();
 
     std::string code = "var st = new SpeedTest(); st.fromjs(Date.now());";
-//    JSBridge::eval(code.c_str());
+//    Bridge::eval(code.c_str());
 }
 
 
 TEST(JSBridge_eval, simple) {
     std::string code = "(function foo() {  })()";
-    JSBridge::eval(code.c_str());
+    Bridge::eval(code.c_str());
 }
 
 TEST(JSBridge_eval, return_text_no_block) {
     std::string code = "(function foo() { return \"text space\"; })()";
-    JSBridge::eval(code.c_str());
+    Bridge::eval(code.c_str());
 }
 
 TEST(JSBridge_eval, return_text_with_block) {
     std::string code = "(function foo() { return \"text space\"; })()";
-    JSBridge::eval(code.c_str(), [](const char* msg){
+    Bridge::eval(code.c_str(), [](const char* msg){
         ASSERT_TRUE(strcmp(msg, "text space") == 0);
     });
 }
@@ -181,7 +181,7 @@ TEST(JSBridge_eval, return_text_with_block) {
 
 TEST(JSBridge_eval, return_json) {
     std::string code = "(function foo() { return \"{ \\\"msg\\\": 4567 }\"; })()";
-    JSBridge::eval(code.c_str(), [](const char* msg){
+    Bridge::eval(code.c_str(), [](const char* msg){
         json obj = json::parse(msg);
         int val = obj["msg"].get<int>(); 
         ASSERT_EQ(val, 4567);
@@ -191,7 +191,7 @@ TEST(JSBridge_eval, return_json) {
 TEST(JSBridge_eval, async) {
     bool hit = false;
     std::string code = "(function foo() { return \"1\"; })()";
-    JSBridge::eval(code.c_str(), [&hit](const char* msg){
+    Bridge::eval(code.c_str(), [&hit](const char* msg){
         hit = true;
     });
     ASSERT_FALSE(hit);
@@ -201,7 +201,7 @@ TEST(JSBridge_eval, async) {
 //TEST(JSBridge_eval, return_object) {
 //    bool hit = false;
 //    std::string code = "(function foo() { return new Object(); })()";
-//    JSBridge::eval(code.c_str(), [&hit](const char* msg){
+//    Bridge::eval(code.c_str(), [&hit](const char* msg){
 //        hit = true;
 //    });
 //    

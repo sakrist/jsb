@@ -9,15 +9,15 @@ Essential:
 
 - [x] bind a C++ class 
 - [x] bind regular functions of a C++ class 
-- [ ] bind const functions of a C++ class 
+- [x] bind const functions of a C++ class 
 - [ ] bind perfect forwarding functions of a C++ class ?? 
 - [x] bind static functions of a C++ class
 - [x] bind simple constructor of a C++ class
 - [ ] bind constructor with arguments of a C++ class
 - [ ] bind property members of a C++ class
 - [x] bind global functions
-- [ ] read arguments from JS 
-- [ ] generate TypeScript/JavaScript code based on bindings
+- [ ] read JS function's arguments and pass to C++
+- [x] generate funcitons JavaScript code based on bindings
 - [ ] execute generated TypeScript/JavaScript code at init
 - [ ] bind external constructors for a C++ class 
 - [ ] bind enums
@@ -32,7 +32,7 @@ Essential:
 - [ ] EM_JS and EM_ASYNC_JS
 - [ ] simple EM_ASM
 
-Non-essential:
+Non-essential might be out of scope:
 
 - [ ] Deriving from C++ classes in JavaScript
     - [ ] [Abstract methods](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#abstract-methods)

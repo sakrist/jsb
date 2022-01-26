@@ -8,10 +8,10 @@
 #import "ViewController.h"
 #import <WebKit/WebKit.h>
 
-#include "JSBridge.hpp"
+#include "Bridge.hpp"
 #include "WKJSBridgeCommunicator.hpp"
 #include "TestJSBinding.hpp"
-#include "JSClassGenerator.hpp"
+#include "CodeGenerator.hpp"
 
 #include "em_js.h"
 
@@ -19,7 +19,7 @@
 //EM_JS(int, foo, (int x, int y), { return 2 * x + y; });
 
     
-using namespace jsbridge;
+using namespace jsb;
 
 @implementation ViewController {
     std::shared_ptr<WKJSBridgeCommunicator> _bridgeOperator;
@@ -53,22 +53,23 @@ using namespace jsbridge;
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
-    jsbridge::JSBridge::registerCommunicator<WKJSBridgeCommunicator>(webview);
+    jsb::Bridge::registerCommunicator<WKJSBridgeCommunicator>(webview);
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
     if ([message.name isEqualToString:@"BridgeTS"]) {
         NSString *messageStr = message.body;
-        JSBridge::recive(messageStr.UTF8String, nullptr);
+        Bridge::recive(messageStr.UTF8String, nullptr);
     }
 }
 
 - (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable))completionHandler {
      const char* data = [prompt cStringUsingEncoding:NSUTF8StringEncoding];
     
-    JSBridge::recive(data, [&](const char* r) {
+    Bridge::recive(data, [&](const char* r) {
         NSString *ret = [[NSString alloc] initWithBytesNoCopy:(void*)r length:strlen(r) encoding:NSUTF8StringEncoding freeWhenDone:NO];
-//        NSString *ret = [NSString stringWithCString:r encoding:NSUTF8StringEncoding];
+
+//        NSString *ret = [NSString stringWithCString:r encoding:NSUTF8StringEncoding]; // or
         completionHandler(ret);
     });
 }
@@ -79,9 +80,6 @@ using namespace jsbridge;
     // Update the view, if already loaded.
 }
 
-float add(int a, int b) {
-    return a + b;
-}
 
 inline std::vector<int> *vecIntFromIntPointer(uintptr_t vec) {
   return reinterpret_cast<std::vector<int> *>(vec);
@@ -95,12 +93,12 @@ public:
 };
 
 
+
 JSBridge_BINDINGS(my_module) {
-    jsbridge::function("add", &add);
     
-    jsbridge::class_<TempClass>("TempClass").constructor<>();
+    jsb::class_<TempClass>("TempClass").constructor<>();
     
-    jsbridge::class_<TestJSBinding>("TestJSBinding")
+    jsb::class_<TestJSBinding>("TestJSBinding")
     .constructor<>()
     .function("setNumber", &TestJSBinding::setNumber)
     .function("setNumberf", &TestJSBinding::setNumberf)
@@ -126,7 +124,7 @@ JSBridge_BINDINGS(my_module) {
 //        .function("voidPtr", &TestJSBinding::voidPtr)
         .class_function("randomNumber", &TestJSBinding::randomNumber);
     
-//    jsbridge::register_vector<int>("VectorInt").constructor(&vecIntFromIntPointer);
+//    jsb::register_vector<int>("VectorInt").constructor(&vecIntFromIntPointer);
 }
 
 

@@ -9,7 +9,7 @@
 #define TestJSBinding_hpp
 
 #include <stdio.h>
-#include "JSBridge.hpp"
+#include "Bridge.hpp"
 
 
 class TestJSBinding  {

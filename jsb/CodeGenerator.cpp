@@ -1,19 +1,18 @@
 //
-//  JSClassGenerator.cpp
+//  CodeGenerator.cpp
 //  BridgeExperiment
 //
 //  Created by Volodymyr Boichentsov on 05/01/2022.
 //
 
-#include "JSClassGenerator.hpp"
-#include "JSBridge.hpp"
+#include "CodeGenerator.hpp"
+#include "Bridge.hpp"
 #include <string>
 #include <regex>
 
-using namespace jsbridge;
-namespace jsbridge {
+namespace jsb {
 
-void registerBaseJS() {
+void CodeGenerator::registerBase() {
     const std::string baseClass = R"(
     var BridgeTS = function () {
       function BridgeTS() {}
@@ -83,10 +82,10 @@ void registerBaseJS() {
     // TODO: replace BridgeTS with some module name
 //    class_start = std::regex_replace(class_start, std::regex("TemplateJSBinding"), classname);
     
-    JSBridge::eval(baseClass.c_str());
+    jsb::Bridge::eval(baseClass.c_str());
 }
 
-void generateJavaScriptClassDeclaration(const std::string& classname, const std::unordered_map<std::string, std::string>& funcs) {
+void CodeGenerator::classDeclaration(const std::string& classname, const std::unordered_map<std::string, std::string>& funcs) {
     
     std::string class_start = R"(var TemplateJSBinding = function(_JSBinding) {
 _inheritsLoose(TemplateJSBinding, _JSBinding);
@@ -116,14 +115,14 @@ var _proto = TemplateJSBinding.prototype;
     // class end
     ss << "return " << classname << "; }(JSBinding);" <<  classname << ".promises = new Map();";
     
-    jsbridge::JSBridge::eval(ss.str().c_str());
+    jsb::Bridge::eval(ss.str().c_str());
 }
 
-std::string generateJavaScriptFunction(const std::string& classid, const FunctionDescriptor desc) {
+std::string CodeGenerator::classFunction(const FunctionDescriptor desc) {
     
     std::stringstream ss("", std::ios_base::app |std::ios_base::out);
     if (desc.is_static) {
-        ss << classid << ".";
+        ss << desc.classid << ".";
     } else {
         ss << "_proto.";
     }
@@ -143,11 +142,11 @@ std::string generateJavaScriptFunction(const std::string& classid, const Functio
         } else {
             ss << "var callid = BridgeTS.generateCallID(this.ptr);"
             "var p = new Promise(function(resolve){";
-            ss << classid <<".promises.set(callid,resolve);});";
+            ss << desc.classid <<".promises.set(callid,resolve);});";
         }
     }
     ss << ((desc.is_sync) ? "BridgeTS.getInstance().sync(JSON.stringify({ class : \"" : 
-                    "BridgeTS.getInstance().async(JSON.stringify({ class : \"") << classid << "\", function : \"" << desc.name << "\"";
+                    "BridgeTS.getInstance().async(JSON.stringify({ class : \"") << desc.classid << "\", function : \"" << desc.name << "\"";
     
     if (!desc.is_static) {
         ss << ", object : this.ptr";
@@ -165,7 +164,7 @@ std::string generateJavaScriptFunction(const std::string& classid, const Functio
     }
     
     if (!desc.is_void && !desc.is_sync) {
-        ss << ", callback : \""<< classid <<" ._callback\", cid : callid })); return p;";
+        ss << ", callback : \""<< desc.classid <<" ._callback\", cid : callid })); return p;";
     } else {
         ss << "}));";
     }

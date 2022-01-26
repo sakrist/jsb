@@ -70,7 +70,7 @@
 ret c_name params { \
 char __em_js__##js_name[] = "function " #c_name #params "" code;                                                                           \
 ret value;              \
-jsbridge::JSBridge::eval(__em_js__##js_name, [&](const char* res) {value = 1;}); \
+jsb::Bridge::eval(__em_js__##js_name, [&](const char* res) {value = 1;}); \
 return value;   \
 };           \
   _EM_JS_CPP_END

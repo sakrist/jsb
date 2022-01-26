@@ -9,13 +9,13 @@
 
 #import <WebKit/WebKit.h>
 #include <stdio.h>
-#include "JSBridge.hpp"
+#include "Bridge.hpp"
 
 #include "json.hpp"
 using json = nlohmann::json;
 
 
-class WKJSBridgeCommunicator : public jsbridge::JSBridgeCommunicator {
+class WKJSBridgeCommunicator : public jsb::JSBridgeCommunicator {
 public:
     WKJSBridgeCommunicator(WKWebView *view);
     
@@ -34,7 +34,7 @@ public:
         
         std::string classid = json["class"].is_null() ? "" : json["class"];
         
-        jsbridge::JSMessageDescriptor msgStruct = { ptr, std::move(classid), json["function"],
+        jsb::JSMessageDescriptor msgStruct = { ptr, std::move(classid), json["function"],
             std::move(callback), std::move(callback_id) };
         
         msgStruct.completion = completion;
@@ -53,7 +53,7 @@ public:
             }
         }
         
-        jsbridge::JSBridge::getInstance().recive(msgStruct);
+        jsb::Bridge::getInstance().recive(msgStruct);
     }
     
     

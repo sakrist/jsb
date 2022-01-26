@@ -1,5 +1,5 @@
 //
-//  JSBridge.hpp
+//  Bridge.hpp
 //  BridgeExperiment
 //
 //  Created by Volodymyr Boichentsov on 25/12/2021.
@@ -18,7 +18,7 @@
 #include <variant>
 #include <string>
 #include <type_traits>
-#include "JSClassGenerator.hpp"
+#include "CodeGenerator.hpp"
 
 using namespace std::placeholders;
 
@@ -31,22 +31,12 @@ using namespace std::placeholders;
     } JSBridgeBindingInitializer_##name##_instance;                     \
 JSBridgeBindingInitializer_##name::JSBridgeBindingInitializer_##name()
 
-namespace jsbridge {
+namespace jsb {
 
 template <typename T>
 struct compatible_type {
-    inline static constexpr bool value = (std::is_same_v<T, void>
-                                          || std::is_same_v<T, bool>
-                                          || std::is_same_v<T, char>
-                                          || std::is_same_v<T, unsigned char>
-                                          || std::is_same_v<T, short>
-                                          || std::is_same_v<T, unsigned short>
-                                          || std::is_same_v<T, int>
-                                          || std::is_same_v<T, unsigned int>
-                                          || std::is_same_v<T, long>
-                                          || std::is_same_v<T, unsigned long>
-                                          || std::is_same_v<T, float>
-                                          || std::is_same_v<T, double>
+    inline static constexpr bool value = (std::is_arithmetic<T>::value
+                                          || std::is_same_v<T, void>
                                           || std::is_same_v<T, uintptr_t>
                                           || std::is_same_v<T, std::string>
                                           || std::is_pointer_v<T>
@@ -98,7 +88,7 @@ JSBRIDGE_ALWAYS_INLINE T arg_converter(uintptr_t val) {
 };
 
 
-//class JSClassGenerator {
+//class CodeGenerator {
 //    void 
 //};
 
@@ -115,7 +105,6 @@ public:
 };
 
 
-class JSBridge;
 using JSArg = std::variant<bool, char, short, int, long, uintptr_t, float, double>;
 
 struct JSMessageDescriptor {
@@ -140,23 +129,24 @@ struct FunctionInvokerBase {
 };
 using InvokersMap = std::unordered_map<std::string, std::unique_ptr<FunctionInvokerBase>>;
 
+class Bridge;
 class base_class_ {
 public:
     virtual ~base_class_() = default;
 protected:
-    friend class JSBridge;
+    friend class Bridge;
     virtual void registerJS() = 0;
     InvokersMap _invokers;
 };
 using ClassesMap = std::unordered_map<std::string, std::unique_ptr<base_class_>>;
 
 
-class JSBridge {
+class Bridge {
 public:
-    static JSBridge& getInstance();
+    static Bridge& getInstance();
     
-    JSBridge(const JSBridge&) = delete;
-    void operator=(const JSBridge&) = delete;
+    Bridge(const Bridge&) = delete;
+    void operator=(const Bridge&) = delete;
     
     
     static void eval(const char* js_code, std::function<void(const char*)>&& completion = nullptr) {
@@ -176,7 +166,7 @@ public:
         }
         getInstance()._communicator = std::make_unique<T>(std::forward<Args>(args)...);
         
-        registerBaseJS();
+        CodeGenerator::registerBase();
         for(auto& [key, cls] : getInstance().classes) {
             cls->registerJS();
         }
@@ -204,8 +194,8 @@ public:
     
 private:
     friend class base_class_;
-    
-    JSBridge() {};
+    inline static Bridge* _instance{ nullptr };
+    Bridge() {};
     
     JSBRIDGE_ALWAYS_INLINE void _recive(const InvokersMap& invs, const JSMessageDescriptor& message) const noexcept(false) {
         auto invokerIt = invs.find(message.function);
@@ -259,7 +249,7 @@ JSBRIDGE_ALWAYS_INLINE static void functionReturn(const JSMessageDescriptor& mes
         }
         ss << ");";
         
-        JSBridge::eval(ss.str().c_str());
+        Bridge::eval(ss.str().c_str());
     }
 }
 
@@ -400,8 +390,8 @@ public:
     
     explicit class_(const char* name) noexcept(false) {
         _name = name;
-        auto it = JSBridge::getInstance().classes.find(_name);
-        if (it != JSBridge::getInstance().classes.end()) {
+        auto it = Bridge::getInstance().classes.find(_name);
+        if (it != Bridge::getInstance().classes.end()) {
             std::stringstream ss("Class with \"", std::ios_base::app |std::ios_base::out);
             ss << _name << "\" name already bind!" << std::endl;
             printf("%s\n", ss.str().c_str());
@@ -409,14 +399,14 @@ public:
         }
         _this = new class_<ClassType>();
         _this->_name = _name;
-        JSBridge::getInstance().classes[_name] = std::unique_ptr<class_<ClassType>>(_this);
+        Bridge::getInstance().classes[_name] = std::unique_ptr<class_<ClassType>>(_this);
     }
     
     template <typename Callable>
     JSBRIDGE_ALWAYS_INLINE class_& function(const char* fname, Callable callable) {
         int args_count = args_count_v<Callable>;
         bool signature = std::is_same_v<return_t<Callable>, void>;
-        auto string = generateJavaScriptFunction(_name, {fname, signature, args_count});
+        auto string = CodeGenerator::classFunction({_name, fname, signature, args_count});
         _this->_js_functions.insert({ fname, std::move(string) });
         _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
         return *this;
@@ -426,7 +416,7 @@ public:
     JSBRIDGE_ALWAYS_INLINE class_& class_function(const char* fname, Callable callable) {
         int args_count = args_count_v<Callable>;
         bool signature = std::is_same_v<return_t<Callable>, void>;
-        auto string = generateJavaScriptFunction(_name, {fname, signature, args_count, true});
+        auto string = CodeGenerator::classFunction({_name, fname, signature, args_count, true});
         _this->_js_functions.insert({ fname, std::move(string) });
         _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
         return *this;
@@ -439,7 +429,7 @@ public:
     
     template<typename Callable, typename... Policies>
     JSBRIDGE_ALWAYS_INLINE class_& constructor(Callable callable, Policies...) {
-        // TODO: constructor with arguments and use generateJavaScriptFunction
+        // TODO: constructor with arguments and use CodeGenerator::classFunction
         _this->_addFunction( { "constructor", std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
         return *this;
     }
@@ -449,7 +439,7 @@ public:
             _this->registerJS();
             return;
         }
-        generateJavaScriptClassDeclaration(_name, _js_functions);
+        CodeGenerator::classDeclaration(_name, _js_functions);
     }
     
 private:
@@ -474,7 +464,7 @@ private:
 
 template<typename Callable, typename... Policies>
 void function(const char* fname, Callable callable, Policies...) {
-    JSBridge::getInstance().invokers.insert( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+    Bridge::getInstance().invokers.insert( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
 }
 
 
@@ -533,7 +523,7 @@ class_<std::vector<T>> register_vector(const char* name) {
 }
 
 
-} // namespace jsbridge
+} // namespace jsb
 
 
 #endif /* JSBridge_hpp */

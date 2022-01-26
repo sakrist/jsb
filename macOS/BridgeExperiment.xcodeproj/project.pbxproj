@@ -10,6 +10,13 @@
 		D26E9CC2278A34EA001C1EFD /* TestJSClassGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */; };
 		D26E9E31278A3E7C001C1EFD /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D26E9DAD278A3E7B001C1EFD /* README.md */; };
 		D26E9E48278A3E7C001C1EFD /* gtest-all.cc in Sources */ = {isa = PBXBuildFile; fileRef = D26E9DD7278A3E7C001C1EFD /* gtest-all.cc */; };
+		D26E9EB427A1ECD2001C1EFD /* CodeGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D26E9EAE27A1ECD2001C1EFD /* CodeGenerator.cpp */; };
+		D26E9EB527A1ECD2001C1EFD /* CodeGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D26E9EAE27A1ECD2001C1EFD /* CodeGenerator.cpp */; };
+		D26E9EB627A1ECD2001C1EFD /* Bridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D26E9EB227A1ECD2001C1EFD /* Bridge.cpp */; };
+		D26E9EB727A1ECD2001C1EFD /* Bridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D26E9EB227A1ECD2001C1EFD /* Bridge.cpp */; };
+		D26E9EB827A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = D26E9EB327A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm */; };
+		D26E9EB927A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = D26E9EB327A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm */; };
+		D26E9ECD27A1EF62001C1EFD /* functionsTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D26E9ECB27A1EF62001C1EFD /* functionsTests.cpp */; };
 		D28CDDDB277DD797009901AC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D28CDDDA277DD797009901AC /* AppDelegate.m */; };
 		D28CDDE0277DD79F009901AC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D28CDDDF277DD79F009901AC /* Assets.xcassets */; };
 		D28CDDE3277DD79F009901AC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D28CDDE1277DD79F009901AC /* Main.storyboard */; };
@@ -18,12 +25,8 @@
 		D28CDDFC277DD7A0009901AC /* BridgeExperimentUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = D28CDDFB277DD7A0009901AC /* BridgeExperimentUITests.m */; };
 		D28CDE17277DD8D5009901AC /* index.html in Resources */ = {isa = PBXBuildFile; fileRef = D28CDE0F277DD8D4009901AC /* index.html */; };
 		D28CDE18277DD8D5009901AC /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE10277DD8D4009901AC /* ViewController.mm */; };
-		D28CDE19277DD8D5009901AC /* JSBridge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE11277DD8D4009901AC /* JSBridge.cpp */; };
-		D28CDE1A277DD8D5009901AC /* TestJSBinding.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE12277DD8D5009901AC /* TestJSBinding.cpp */; };
-		D28CDE1B277DD8D5009901AC /* WKJSBridgeCommunicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE13277DD8D5009901AC /* WKJSBridgeCommunicator.mm */; };
 		D28CDE31277DD963009901AC /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D28CDE30277DD963009901AC /* WebKit.framework */; };
 		D2AE454B27848F4100803E36 /* class__Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE454927848F4100803E36 /* class__Tests.cpp */; };
-		D2AE45592786459400803E36 /* JSClassGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE45572786459400803E36 /* JSClassGenerator.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,12 +47,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		35F2FD3A277DDD2900344720 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		35F2FD3A277DDD2900344720 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		D25785BF277F5BC800F4B3E0 /* bind.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bind.cpp; sourceTree = "<group>"; };
 		D25785C0277F5BC800F4B3E0 /* val.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = val.hpp; sourceTree = "<group>"; };
 		D25785C1277F5BC800F4B3E0 /* wire.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = wire.hpp; sourceTree = "<group>"; };
 		D25785C2277F5BC800F4B3E0 /* bind.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = bind.hpp; sourceTree = "<group>"; };
-		D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TestJSClassGenerator.cpp; sourceTree = "<group>"; };
+		D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TestJSClassGenerator.cpp; path = ../../tests/TestJSClassGenerator.cpp; sourceTree = "<group>"; };
 		D26E9D9F278A3E7B001C1EFD /* gtest-matchers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-matchers.h"; sourceTree = "<group>"; };
 		D26E9DA0278A3E7B001C1EFD /* gtest-death-test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-death-test.h"; sourceTree = "<group>"; };
 		D26E9DA1278A3E7B001C1EFD /* gtest-spi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-spi.h"; sourceTree = "<group>"; };
@@ -74,6 +77,15 @@
 		D26E9DB6278A3E7B001C1EFD /* gtest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gtest.h; sourceTree = "<group>"; };
 		D26E9DB7278A3E7B001C1EFD /* gtest-printers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-printers.h"; sourceTree = "<group>"; };
 		D26E9DD7278A3E7C001C1EFD /* gtest-all.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "gtest-all.cc"; sourceTree = "<group>"; };
+		D26E9EAE27A1ECD2001C1EFD /* CodeGenerator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CodeGenerator.cpp; sourceTree = "<group>"; };
+		D26E9EAF27A1ECD2001C1EFD /* WKJSBridgeCommunicator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WKJSBridgeCommunicator.hpp; sourceTree = "<group>"; };
+		D26E9EB027A1ECD2001C1EFD /* Bridge.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Bridge.hpp; sourceTree = "<group>"; };
+		D26E9EB127A1ECD2001C1EFD /* CodeGenerator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = CodeGenerator.hpp; sourceTree = "<group>"; };
+		D26E9EB227A1ECD2001C1EFD /* Bridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bridge.cpp; sourceTree = "<group>"; };
+		D26E9EB327A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WKJSBridgeCommunicator.mm; sourceTree = "<group>"; };
+		D26E9EC327A1EE5B001C1EFD /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json.hpp; path = ../json.hpp; sourceTree = "<group>"; };
+		D26E9EC727A1EE79001C1EFD /* TestJSBinding.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = TestJSBinding.hpp; path = ../../tests/TestJSBinding.hpp; sourceTree = "<group>"; };
+		D26E9ECB27A1EF62001C1EFD /* functionsTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = functionsTests.cpp; path = ../../tests/functionsTests.cpp; sourceTree = "<group>"; };
 		D28CDDD6277DD797009901AC /* BridgeExperiment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BridgeExperiment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D28CDDD9277DD797009901AC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D28CDDDA277DD797009901AC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -91,19 +103,10 @@
 		D28CDDFD277DD7A0009901AC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D28CDE0F277DD8D4009901AC /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		D28CDE10277DD8D4009901AC /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
-		D28CDE11277DD8D4009901AC /* JSBridge.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSBridge.cpp; sourceTree = "<group>"; };
-		D28CDE12277DD8D5009901AC /* TestJSBinding.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TestJSBinding.cpp; sourceTree = "<group>"; };
-		D28CDE13277DD8D5009901AC /* WKJSBridgeCommunicator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = WKJSBridgeCommunicator.mm; sourceTree = "<group>"; };
-		D28CDE14277DD8D5009901AC /* JSBridge.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = JSBridge.hpp; sourceTree = "<group>"; };
-		D28CDE15277DD8D5009901AC /* WKJSBridgeCommunicator.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = WKJSBridgeCommunicator.hpp; sourceTree = "<group>"; };
-		D28CDE16277DD8D5009901AC /* TestJSBinding.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = TestJSBinding.hpp; sourceTree = "<group>"; };
-		D28CDE1F277DD8EC009901AC /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = SOURCE_ROOT; };
 		D28CDE30277DD963009901AC /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
-		D2AE454927848F4100803E36 /* class__Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = class__Tests.cpp; sourceTree = "<group>"; };
+		D2AE454927848F4100803E36 /* class__Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = class__Tests.cpp; path = ../../tests/class__Tests.cpp; sourceTree = "<group>"; };
 		D2AE45522784BA6500803E36 /* em_asm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_asm.h; sourceTree = "<group>"; };
 		D2AE45532784BA6500803E36 /* em_js.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_js.h; sourceTree = "<group>"; };
-		D2AE45572786459400803E36 /* JSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = JSClassGenerator.cpp; sourceTree = "<group>"; };
-		D2AE45582786459400803E36 /* JSClassGenerator.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = JSClassGenerator.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,7 +145,8 @@
 				D2AE45522784BA6500803E36 /* em_asm.h */,
 				D2AE45532784BA6500803E36 /* em_js.h */,
 			);
-			path = emsdk;
+			name = emsdk;
+			path = ../emsdk;
 			sourceTree = "<group>";
 		};
 		D26E9D40278A3E7A001C1EFD /* googletest */ = {
@@ -152,7 +156,7 @@
 				D26E9DCE278A3E7C001C1EFD /* src */,
 			);
 			name = googletest;
-			path = gtest/googletest;
+			path = ../../gtest/googletest;
 			sourceTree = "<group>";
 		};
 		D26E9D9D278A3E7B001C1EFD /* include */ = {
@@ -217,11 +221,27 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		D26E9EAD27A1ECD2001C1EFD /* jsb */ = {
+			isa = PBXGroup;
+			children = (
+				D26E9EB227A1ECD2001C1EFD /* Bridge.cpp */,
+				D26E9EB027A1ECD2001C1EFD /* Bridge.hpp */,
+				D26E9EAE27A1ECD2001C1EFD /* CodeGenerator.cpp */,
+				D26E9EB127A1ECD2001C1EFD /* CodeGenerator.hpp */,
+				D26E9EAF27A1ECD2001C1EFD /* WKJSBridgeCommunicator.hpp */,
+				D26E9EB327A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm */,
+			);
+			name = jsb;
+			path = ../jsb;
+			sourceTree = "<group>";
+		};
 		D28CDDCD277DD797009901AC = {
 			isa = PBXGroup;
 			children = (
 				35F2FD3A277DDD2900344720 /* README.md */,
+				D26E9EC327A1EE5B001C1EFD /* json.hpp */,
 				D25785BE277F5BC800F4B3E0 /* emsdk */,
+				D26E9EAD27A1ECD2001C1EFD /* jsb */,
 				D28CDDD8277DD797009901AC /* BridgeExperiment */,
 				D28CDDEF277DD7A0009901AC /* BridgeExperimentTests */,
 				D28CDDFA277DD7A0009901AC /* BridgeExperimentUITests */,
@@ -244,19 +264,11 @@
 			isa = PBXGroup;
 			children = (
 				D28CDE0F277DD8D4009901AC /* index.html */,
-				D28CDE1F277DD8EC009901AC /* json.hpp */,
 				D28CDDD9277DD797009901AC /* AppDelegate.h */,
 				D28CDDDA277DD797009901AC /* AppDelegate.m */,
 				D28CDDDC277DD797009901AC /* ViewController.h */,
 				D28CDE10277DD8D4009901AC /* ViewController.mm */,
-				D2AE45572786459400803E36 /* JSClassGenerator.cpp */,
-				D2AE45582786459400803E36 /* JSClassGenerator.hpp */,
-				D28CDE11277DD8D4009901AC /* JSBridge.cpp */,
-				D28CDE14277DD8D5009901AC /* JSBridge.hpp */,
-				D28CDE12277DD8D5009901AC /* TestJSBinding.cpp */,
-				D28CDE16277DD8D5009901AC /* TestJSBinding.hpp */,
-				D28CDE15277DD8D5009901AC /* WKJSBridgeCommunicator.hpp */,
-				D28CDE13277DD8D5009901AC /* WKJSBridgeCommunicator.mm */,
+				D26E9EC727A1EE79001C1EFD /* TestJSBinding.hpp */,
 				D28CDDDF277DD79F009901AC /* Assets.xcassets */,
 				D28CDDE1277DD79F009901AC /* Main.storyboard */,
 				D28CDDE4277DD79F009901AC /* Info.plist */,
@@ -271,6 +283,7 @@
 			children = (
 				D26E9D40278A3E7A001C1EFD /* googletest */,
 				D2AE454927848F4100803E36 /* class__Tests.cpp */,
+				D26E9ECB27A1EF62001C1EFD /* functionsTests.cpp */,
 				D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */,
 				D28CDDF0277DD7A0009901AC /* BridgeExperimentTests.mm */,
 				D28CDDF2277DD7A0009901AC /* Info.plist */,
@@ -427,11 +440,10 @@
 			files = (
 				D28CDDE6277DD79F009901AC /* main.m in Sources */,
 				D28CDDDB277DD797009901AC /* AppDelegate.m in Sources */,
-				D28CDE1A277DD8D5009901AC /* TestJSBinding.cpp in Sources */,
-				D28CDE1B277DD8D5009901AC /* WKJSBridgeCommunicator.mm in Sources */,
+				D26E9EB627A1ECD2001C1EFD /* Bridge.cpp in Sources */,
 				D28CDE18277DD8D5009901AC /* ViewController.mm in Sources */,
-				D28CDE19277DD8D5009901AC /* JSBridge.cpp in Sources */,
-				D2AE45592786459400803E36 /* JSClassGenerator.cpp in Sources */,
+				D26E9EB827A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm in Sources */,
+				D26E9EB427A1ECD2001C1EFD /* CodeGenerator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,10 +451,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D26E9EB927A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm in Sources */,
 				D28CDDF1277DD7A0009901AC /* BridgeExperimentTests.mm in Sources */,
+				D26E9EB727A1ECD2001C1EFD /* Bridge.cpp in Sources */,
+				D26E9EB527A1ECD2001C1EFD /* CodeGenerator.cpp in Sources */,
 				D26E9CC2278A34EA001C1EFD /* TestJSClassGenerator.cpp in Sources */,
 				D26E9E48278A3E7C001C1EFD /* gtest-all.cc in Sources */,
 				D2AE454B27848F4100803E36 /* class__Tests.cpp in Sources */,
+				D26E9ECD27A1EF62001C1EFD /* functionsTests.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -640,8 +656,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				HEADER_SEARCH_PATHS = (
-					$SRCROOT/BridgeExperimentTests/gtest/googletest/include,
-					"$SRCROOT/BridgeExperimentTests/gtest/googletest/**",
+					$SRCROOT/../gtest/googletest/include,
+					"$SRCROOT/../gtest/googletest/**",
 				);
 				INFOPLIST_FILE = BridgeExperimentTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -664,8 +680,8 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				HEADER_SEARCH_PATHS = (
-					$SRCROOT/BridgeExperimentTests/gtest/googletest/include,
-					"$SRCROOT/BridgeExperimentTests/gtest/googletest/**",
+					$SRCROOT/../gtest/googletest/include,
+					"$SRCROOT/../gtest/googletest/**",
 				);
 				INFOPLIST_FILE = BridgeExperimentTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
