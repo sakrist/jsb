@@ -101,21 +101,18 @@ JSBridge_BINDINGS(my_module) {
     jsb::class_<TestJSBinding>("TestJSBinding")
     .constructor<>()
     .function("setNumber", &TestJSBinding::setNumber)
-    .function("setNumberf", &TestJSBinding::setNumberf)
-    .function("setNumberd", &TestJSBinding::setNumberd)
+//    .function("setNumberf", &TestJSBinding::setNumberf)
+//    .function("setNumberd", &TestJSBinding::setNumberd)
     .function("getNumber", &TestJSBinding::getNumber)
-    .function("setNumber2", &TestJSBinding::setNumber2)
-    .function("voidPtr", &TestJSBinding::voidPtr)
-
-    .function("copyFrom", &TestJSBinding::copyFrom)
-    .function("forward", &TestJSBinding::forward)
-    .function("forwardf", &TestJSBinding::forwardf)
-    .function("forwardd", &TestJSBinding::forwardd)
-    
-    .function("string2", &TestJSBinding::string2)
-    .function("string", &TestJSBinding::string)
-    
-    .function("const_func", &TestJSBinding::const_func)
+//    .function("setNumber2", &TestJSBinding::setNumber2)
+//    .function("voidPtr", &TestJSBinding::voidPtr)
+//    .function("copyFrom", &TestJSBinding::copyFrom)
+//    .function("forward", &TestJSBinding::forward)
+//    .function("forwardf", &TestJSBinding::forwardf)
+//    .function("forwardd", &TestJSBinding::forwardd)
+//    .function("string2", &TestJSBinding::string2)
+//    .function("string", &TestJSBinding::string)
+//    .function("const_func", &TestJSBinding::const_func)
     
     
     

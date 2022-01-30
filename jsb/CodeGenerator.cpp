@@ -49,35 +49,7 @@ void CodeGenerator::registerBase() {
       return BridgeTS;
     }();
     BridgeTS.promises = new Map();
-    
-    function _inheritsLoose(subClass, superClass) {
-      subClass.prototype = Object.create(superClass.prototype);
-      subClass.prototype.constructor = subClass;
-      _setPrototypeOf(subClass, superClass);
-    }
-    function _setPrototypeOf(o, p) {
-      _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) {
-        o.__proto__ = p; return o;
-      }; return _setPrototypeOf(o, p);
-    }
-    function _assertThisInitialized(self) {
-      if (self === void 0) {
-        throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-      }
-      return self;
-    }
-    
-    var JSBinding = function () {
-      function JSBinding(ptrObject) {
-        this.ptr = ptrObject;
-      }
-      JSBinding.getTemporaryObjectId = function getTemporaryObjectId() {
-        JSBinding._tmpPtrID++;
-        return JSBinding._tmpPtrID;
-      };
-      return JSBinding;
-    }();
-    JSBinding._tmpPtrID = 0; )";
+    )";
     
     // TODO: replace BridgeTS with some module name
 //    class_start = std::regex_replace(class_start, std::regex("TemplateJSBinding"), classname);
@@ -85,16 +57,13 @@ void CodeGenerator::registerBase() {
     jsb::Bridge::eval(baseClass.c_str());
 }
 
-void CodeGenerator::classDeclaration(const std::string& classname, const std::unordered_map<std::string, std::string>& funcs) {
+void CodeGenerator::classDeclaration(const std::string& classname, const std::vector<FunctionDescriptor>& funcs) {
     
-    std::string class_start = R"(var TemplateJSBinding = function(_JSBinding) {
-_inheritsLoose(TemplateJSBinding, _JSBinding);
+    std::string class_start = R"(var TemplateJSBinding = function() {
 function TemplateJSBinding(ptrObject) {
     if (!ptrObject) {
-        ptrObject = Number(BridgeTS.getInstance().sync('{ "class" : "TemplateJSBinding", "function" : "constructor" }'));
+        this.ptr = Number(BridgeTS.getInstance().sync('{ "class" : "TemplateJSBinding", "function" : "constructor" }'));
     }
-    var _this = _JSBinding.call(this, ptrObject) || this;
-    return _assertThisInitialized(_this);
 }
 TemplateJSBinding._callback = function _callback(key, value) {
     var resolve = TemplateJSBinding.promises.get(key);
@@ -108,17 +77,17 @@ var _proto = TemplateJSBinding.prototype;
     std::stringstream ss(class_start, std::ios_base::app |std::ios_base::out);
     
     // function declaraions
-    for (auto& [key, value] : funcs) {
-        ss << value << "\n";
+    for (const auto& value : funcs) {
+        ss << classFunction(value) << "\n";
     }
     
     // class end
-    ss << "return " << classname << "; }(JSBinding);" <<  classname << ".promises = new Map();";
+    ss << "return " << classname << "; }();" <<  classname << ".promises = new Map();";
     
     jsb::Bridge::eval(ss.str().c_str());
 }
 
-std::string CodeGenerator::classFunction(const FunctionDescriptor desc) {
+std::string CodeGenerator::classFunction(const FunctionDescriptor& desc) {
     
     std::stringstream ss("", std::ios_base::app |std::ios_base::out);
     if (desc.is_static) {

@@ -29,9 +29,9 @@ class CodeGenerator {
 public:
     static void registerBase();
 
-    static void classDeclaration(const std::string& classname, const std::unordered_map<std::string, std::string>& funcs);
+    static void classDeclaration(const std::string& classname, const std::vector<FunctionDescriptor>& funcs);
 
-    static std::string classFunction(const FunctionDescriptor desc);
+    static std::string classFunction(const FunctionDescriptor& desc);
 };
 
 }
