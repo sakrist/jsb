@@ -1,12 +1,7 @@
 //
-//  Bridge.hpp
-//  BridgeExperiment
-//
+//  jsb
 //  Created by Volodymyr Boichentsov on 25/12/2021.
 //
-
-#ifndef JSBridge_hpp
-#define JSBridge_hpp
 
 #pragma once
 
@@ -376,6 +371,11 @@ JSB_ALWAYS_INLINE ClassType* operator_new(Args&&... args) {
     return new ClassType(std::forward<Args>(args)...);
 }
 
+template<typename ClassType>
+void raw_destructor(ClassType* ptr) {
+    delete ptr;
+}
+
 template<typename T>
 using return_t = typename FunctionInvoker<T>::rtype;
 
@@ -398,6 +398,10 @@ public:
         _this = new class_<ClassType>();
         _this->_name = _name;
         Bridge::getInstance().classes[_name] = std::unique_ptr<class_<ClassType>>(_this);
+        
+        // TODO: delete, code generator must name functions differently to avoid conflict of redefinition
+        // incomming argumnet must be ptr to object, special case in code generator. 
+        //function("delete", &raw_destructor<ClassType>);
     }
     
     template <typename Callable>
@@ -522,4 +526,3 @@ class_<std::vector<T>> register_vector(const char* name) {
 } // namespace jsb
 
 
-#endif /* JSBridge_hpp */

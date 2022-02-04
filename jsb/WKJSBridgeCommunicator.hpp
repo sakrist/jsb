@@ -1,7 +1,5 @@
 //
-//  WKJSBridgeCommunicator.hpp
-//  BridgeExperiment
-//
+//  jsb
 //  Created by Volodymyr Boichentsov on 29/12/2021.
 //
 

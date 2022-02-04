@@ -104,6 +104,7 @@ JSBridge_BINDINGS(my_module) {
 //    .function("setNumberf", &TestJSBinding::setNumberf)
 //    .function("setNumberd", &TestJSBinding::setNumberd)
     .function("getNumber", &TestJSBinding::getNumber)
+    .function("const_func", &TestJSBinding::const_func)
 //    .function("setNumber2", &TestJSBinding::setNumber2)
 //    .function("voidPtr", &TestJSBinding::voidPtr)
 //    .function("copyFrom", &TestJSBinding::copyFrom)
@@ -112,7 +113,7 @@ JSBridge_BINDINGS(my_module) {
 //    .function("forwardd", &TestJSBinding::forwardd)
 //    .function("string2", &TestJSBinding::string2)
 //    .function("string", &TestJSBinding::string)
-//    .function("const_func", &TestJSBinding::const_func)
+
     
     
     

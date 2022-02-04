@@ -1,7 +1,5 @@
 //
-//  CodeGenerator.cpp
-//  BridgeExperiment
-//
+//  jsb
 //  Created by Volodymyr Boichentsov on 05/01/2022.
 //
 

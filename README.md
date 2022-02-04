@@ -7,19 +7,22 @@ Project is inspired by Emscripten's embind and later by Boost.Python.
 
 Essential:
 
-- [x] bind a C++ class 
-- [x] bind regular functions of a C++ class 
-- [x] bind const functions of a C++ class 
-- [ ] bind perfect forwarding functions of a C++ class ?? 
-- [x] bind static functions of a C++ class
-- [x] bind simple constructor of a C++ class
-- [ ] bind constructor with arguments of a C++ class
-- [ ] bind property members of a C++ class
+- [x] bind a class 
+- [x] bind regular functions of a class 
+- [x] bind const functions of a class 
+- [x] bind static functions of a class
+- [x] bind simple constructor of a class
 - [x] bind global functions
-- [ ] read JS function's arguments and pass to C++
 - [x] generate funcitons JavaScript code based on bindings
-- [ ] execute generated TypeScript/JavaScript code at init
-- [ ] bind external constructors for a C++ class 
+- [ ] val as wrapper around JS object
+- [ ] read JS function's arguments and pass to C++ function
+- [ ] delete function for C++ class
+
+- [ ] bind perfect forwarding functions of a class ?? 
+- [ ] bind constructor with arguments of a class
+- [ ] bind property members of a class
+
+- [x] execute generated TypeScript/JavaScript code at init 
 - [ ] bind enums
 - [ ] bind vectors
 - [ ] [value types](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#value-types)
