@@ -6,6 +6,7 @@
 //
 
 #include "gtest/gtest.h"
+#include <future>
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -130,7 +131,7 @@ TEST(class_Tests, char_pointer) {
 TEST(class_Tests, string) {
     class_<TestCompilation>("TestCompilation3")
     .function("str0", &TestCompilation::str0)
-//    .function("str1", &TestCompilation::str1) // TODO: must be compilable
+    .function("str1", &TestCompilation::str1) 
     .function("str2", &TestCompilation::str2)
     ;
 }

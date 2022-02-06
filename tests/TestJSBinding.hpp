@@ -39,6 +39,9 @@ public:
     void setNumberd(double newi) {
         i = newi;
     }
+    void setString(std::string string) {
+        _str = string;
+    }
     
     void forward(int&& newi) {
         i = newi;
@@ -83,7 +86,7 @@ public:
         printf("const_func\n");
     }
     
-    
+    std::string _str;
     char r[10] = "string\0";
     int i = 0;
 };

@@ -27,6 +27,7 @@
 		D28CDE18277DD8D5009901AC /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D28CDE10277DD8D4009901AC /* ViewController.mm */; };
 		D28CDE31277DD963009901AC /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D28CDE30277DD963009901AC /* WebKit.framework */; };
 		D2AE454B27848F4100803E36 /* class__Tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2AE454927848F4100803E36 /* class__Tests.cpp */; };
+		D2DFDC9627B030A400CFCD8D /* SignatureTests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2DFDC9527B030A400CFCD8D /* SignatureTests.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +109,7 @@
 		D2AE454927848F4100803E36 /* class__Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = class__Tests.cpp; path = ../../tests/class__Tests.cpp; sourceTree = "<group>"; };
 		D2AE45522784BA6500803E36 /* em_asm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_asm.h; sourceTree = "<group>"; };
 		D2AE45532784BA6500803E36 /* em_js.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_js.h; sourceTree = "<group>"; };
+		D2DFDC9527B030A400CFCD8D /* SignatureTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SignatureTests.cpp; path = ../../tests/SignatureTests.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -286,6 +288,7 @@
 				D26E9D40278A3E7A001C1EFD /* googletest */,
 				D2AE454927848F4100803E36 /* class__Tests.cpp */,
 				D26E9ECB27A1EF62001C1EFD /* functionsTests.cpp */,
+				D2DFDC9527B030A400CFCD8D /* SignatureTests.cpp */,
 				D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */,
 				D28CDDF0277DD7A0009901AC /* BridgeExperimentTests.mm */,
 				D28CDDF2277DD7A0009901AC /* Info.plist */,
@@ -454,6 +457,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D26E9EB927A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm in Sources */,
+				D2DFDC9627B030A400CFCD8D /* SignatureTests.cpp in Sources */,
 				D28CDDF1277DD7A0009901AC /* BridgeExperimentTests.mm in Sources */,
 				D26E9EB727A1ECD2001C1EFD /* Bridge.cpp in Sources */,
 				D26E9EB527A1ECD2001C1EFD /* CodeGenerator.cpp in Sources */,

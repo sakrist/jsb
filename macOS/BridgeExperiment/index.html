@@ -13,11 +13,19 @@ function tester() {
   log('new TestJSBinding getNumber should be 10 and it is: ' + value2);
   var value3 = TestJSBinding.randomNumber(10);
   log('new TestJSBinding randomNumber to 10: ' + value3);
+  
+  var object1 = new TestJSBinding();
+  object1.setNumber(20);
+  object1.setString("str");
+  //object.copyFrom(object1);
+  //log('object.getNumber: ' + object.getNumber(););
+  
   //object.delete();
-} // @ts-ignore
+};
+window.tester = tester;
 
 </script>
 <p style="color:red;" id="demo">Hello!</p>
-<button onclick="window.tester()">Run test</button>
+<button onclick="tester()">Run test</button>
 <div id='msg'></div>
 </body></html>

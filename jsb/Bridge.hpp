@@ -16,6 +16,8 @@
 #include <type_traits>
 #include "CodeGenerator.hpp"
 
+#include "json.hpp"
+
 using namespace std::placeholders;
 
 #define JSB_ALWAYS_INLINE __attribute__((always_inline))
@@ -52,29 +54,13 @@ using remove_cvref_t = typename remove_cvref<_Tp>::type;
 
 
 
-// TODO: I don't like arg_converter
-
-template <typename T, std::enable_if_t<std::is_same_v<T, int&&>, int> = 0>
-JSB_ALWAYS_INLINE auto arg_converter(int val) {
-    return std::forward<T>(val);
+template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
+JSB_ALWAYS_INLINE auto arg_converter(T val) {
+    return val;
 };
 
-template <typename T, std::enable_if_t<std::is_same_v<T, double&&>, int> = 0>
-JSB_ALWAYS_INLINE auto arg_converter(double val) {
-    return std::forward<T>(val);
-};
-template <typename T, std::enable_if_t<std::is_same_v<T, float&&>, int> = 0>
-JSB_ALWAYS_INLINE auto arg_converter(float val) {
-    return std::forward<T>(val);
-};
-
-template <typename T>
-auto arg_converter(T&& val) {
-    return std::forward<T>(val);
-};
-
-template <typename T>
-auto arg_converter(T val) {
+template <typename T, std::enable_if_t<!std::is_arithmetic_v<T>, int> = 0>
+JSB_ALWAYS_INLINE auto arg_converter(T&& val) {
     return std::forward<T>(val);
 };
 
@@ -101,7 +87,7 @@ public:
 };
 
 
-using JSArg = std::variant<bool, char, short, int, long, uintptr_t, float, double>;
+using Var = nlohmann::json;
 
 struct JSMessageDescriptor {
     uintptr_t object;
@@ -113,11 +99,9 @@ struct JSMessageDescriptor {
     std::string callback_id;
     
     // sync
-    std::function<void(const char*)> completion{nullptr};
+    std::function<void(const char*)> completion{ nullptr };
     
-    int args_count{ 0 };
-    JSArg args[3];
-    std::string argss;
+    Var args;
 };
 
 struct FunctionInvokerBase {
@@ -257,19 +241,19 @@ template<typename ReturnType, typename ClassType, typename... Args>
 struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvokerBase {
     
     FunctionInvoker(ReturnType (ClassType::*f)(Args...) ) : _f(f){
-        static_assert(compatible_type_v<std::remove_cv_t<ReturnType>>, "incompatible return type");
+        static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
     
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const JSArg *args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const Var& args) {
         
         // Here we are executing function from object
         return (object_->*_f)
-        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(std::get<
+        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(args[S].get<
                                   typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
                                          uintptr_t,
                                          remove_cvref_t<std::tuple_element_t<S, std::tuple<Args...>>>>::type
-                                 >(args[S]))...);
+                                 >())...);
     }
       
     void invoke(const JSMessageDescriptor& message) override {
@@ -296,19 +280,19 @@ template<typename ReturnType, typename ClassType, typename... Args>
 struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public FunctionInvokerBase {
     
     FunctionInvoker(ReturnType (ClassType::*f)(Args...) const) : _f(f){
-        static_assert(compatible_type_v<std::remove_cv_t<ReturnType>>, "incompatible return type");
+        static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
       
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const JSArg *args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const Var& args) {
         
         // Here we are executing function from object
         return (object_->*_f)
-        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(std::get<
+        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(args[S].get<
                                   typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
                                          uintptr_t,
                                          remove_cvref_t<std::tuple_element_t<S, std::tuple<Args...>>>>::type
-                                 >(args[S]))...);
+                                 >())...);
     }
       
     void invoke(const JSMessageDescriptor& message) override {
@@ -336,17 +320,17 @@ template<typename ReturnType, typename... Args>
 struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
     
     FunctionInvoker(ReturnType (*f)(Args...)) : _f(f)  {
-        static_assert(compatible_type_v<std::remove_cv_t<ReturnType>>, "incompatible return type");
+        static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
     
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const JSArg *args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const Var& args) {
         return (*_f)
-        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(std::get<
+        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(args[S].get<
                                      typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
                                             uintptr_t,
                                             remove_cvref_t<std::tuple_element_t<S, std::tuple<Args...>>>>::type
-                                    >(args[S]))...);
+                                    >())...);
     }
       
     void invoke(const JSMessageDescriptor& message) override {
@@ -382,6 +366,86 @@ using return_t = typename FunctionInvoker<T>::rtype;
 template<typename T>
 inline constexpr int args_count_v = FunctionInvoker<T>::args_count;
 
+////////////////////////////////////////////////////////////////////////////////
+// SignatureCode, SignatureString
+////////////////////////////////////////////////////////////////////////////////
+
+namespace internal {
+
+template<typename T>
+struct SignatureCode {};
+
+
+template<>
+struct SignatureCode<uintptr_t> {
+    static constexpr char get() {
+        return 'p';
+    }
+};
+
+template<>
+struct SignatureCode<int> {
+    static constexpr char get() {
+        return 'i';
+    }
+};
+
+template<>
+struct SignatureCode<void> {
+    static constexpr char get() {
+        return 'v';
+    }
+};
+
+template<>
+struct SignatureCode<float> {
+    static constexpr char get() {
+        return 'f';
+    }
+};
+
+template<>
+struct SignatureCode<double> {
+    static constexpr char get() {
+        return 'd';
+    }
+};
+
+template<typename... Args>
+const char* getGenericSignature() {
+    static constexpr char signature[] = { SignatureCode<Args>::get()..., 0 };
+    return signature;
+}
+
+template<typename T> struct SignatureTranslator { 
+    using type = typename std::conditional<std::is_pointer_v<T>, uintptr_t, int>::type; };
+template<> struct SignatureTranslator<void> { using type = void; };
+template<> struct SignatureTranslator<float> { using type = float; };
+template<> struct SignatureTranslator<double> { using type = double; };
+
+template<typename... Args>
+JSB_ALWAYS_INLINE const char* getSpecificSignature() {
+    return getGenericSignature<typename SignatureTranslator<Args>::type...>();
+}
+
+template<typename Return, typename... Args>
+JSB_ALWAYS_INLINE const char* getSignature(Return (*)(Args...)) {
+    return getSpecificSignature<Return, Args...>();
+}
+
+template<typename Return, typename Class, typename... Args>
+JSB_ALWAYS_INLINE const char* getSignature(Return (Class::*)(Args...) const) {
+    return getSpecificSignature<Return, Args...>();
+}
+
+template<typename Return, typename Class, typename... Args>
+JSB_ALWAYS_INLINE const char* getSignature(Return (Class::*)(Args...)) {
+    return getSpecificSignature<Return, Args...>();
+}
+
+} // end namespace internal
+
+
 template<typename ClassType>
 class class_ : public base_class_ {
     
@@ -408,6 +472,7 @@ public:
     JSB_ALWAYS_INLINE class_& function(const char* fname, Callable callable) {
         int args_count = args_count_v<Callable>;
         bool signature = std::is_same_v<return_t<Callable>, void>;
+        auto sig = internal::getSignature(callable);
         _this->_functions.push_back({_name, fname, signature, args_count});
         _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
         return *this;
