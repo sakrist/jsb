@@ -14,9 +14,9 @@ Essential:
 - [x] bind simple constructor of a class
 - [x] bind global functions
 - [x] generate funcitons JavaScript code based on bindings
+- [x] delete function for C++ class
 - [ ] val as wrapper around JS object
 - [ ] read JS function's arguments and pass to C++ function
-- [ ] delete function for C++ class
 
 - [ ] bind perfect forwarding functions of a class ?? 
 - [ ] bind constructor with arguments of a class

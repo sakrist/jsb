@@ -105,7 +105,9 @@ struct JSMessageDescriptor {
 };
 
 struct FunctionInvokerBase {
+    FunctionInvokerBase(FunctionDescriptor aDescriptor) : descriptor(aDescriptor) {}
     virtual void invoke(const JSMessageDescriptor& message) {};
+    const FunctionDescriptor descriptor;
 };
 using InvokersMap = std::unordered_map<std::string, std::unique_ptr<FunctionInvokerBase>>;
 
@@ -240,7 +242,8 @@ struct FunctionInvoker;
 template<typename ReturnType, typename ClassType, typename... Args>
 struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvokerBase {
     
-    FunctionInvoker(ReturnType (ClassType::*f)(Args...) ) : _f(f){
+    FunctionInvoker(ReturnType (ClassType::*f)(Args...), FunctionDescriptor aDescriptor) : 
+      FunctionInvokerBase(aDescriptor), _f(f) {
         static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
     
@@ -268,10 +271,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
             functionReturn(message, std::forward<ReturnType>(_invoke(object_, sequence, message.args)));
         }
     };
-    
-    using rtype = ReturnType;
-    inline static constexpr int args_count = sizeof...(Args);
-    
+
 private:
     ReturnType (ClassType::*_f)(Args...);
 };
@@ -279,7 +279,8 @@ private:
 template<typename ReturnType, typename ClassType, typename... Args>
 struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public FunctionInvokerBase {
     
-    FunctionInvoker(ReturnType (ClassType::*f)(Args...) const) : _f(f){
+    FunctionInvoker(ReturnType (ClassType::*f)(Args...) const, FunctionDescriptor aDescriptor) :  
+      FunctionInvokerBase(aDescriptor), _f(f) {
         static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
       
@@ -307,10 +308,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public Functi
             functionReturn(message, std::forward<ReturnType>(_invoke(object_, sequence, message.args)));
         }
     };
-      
-    using rtype = ReturnType;
-    inline static constexpr int args_count = sizeof...(Args);
-    
+
 private:
     ReturnType (ClassType::*_f)(Args...) const;
 };
@@ -319,7 +317,8 @@ private:
 template<typename ReturnType, typename... Args>
 struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
     
-    FunctionInvoker(ReturnType (*f)(Args...)) : _f(f)  {
+    FunctionInvoker(ReturnType (*f)(Args...), FunctionDescriptor aDescriptor) : 
+      FunctionInvokerBase(aDescriptor), _f(f) {
         static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
     
@@ -342,10 +341,7 @@ struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
             functionReturn(message, std::forward<ReturnType>(_invoke(sequence, message.args)));
         }
     };
-    
-    using rtype = ReturnType;
-    inline static constexpr int args_count = sizeof...(Args);
-    
+
 private:
     ReturnType (*_f)(Args...);
 };
@@ -463,40 +459,26 @@ public:
         _this->_name = _name;
         Bridge::getInstance().classes[_name] = std::unique_ptr<class_<ClassType>>(_this);
         
-        // TODO: delete, code generator must name functions differently to avoid conflict of redefinition
-        // incomming argumnet must be ptr to object, special case in code generator. 
-        //function("delete", &raw_destructor<ClassType>);
+        _private("dtor", &raw_destructor<ClassType>);
     }
     
     template <typename Callable>
     JSB_ALWAYS_INLINE class_& function(const char* fname, Callable callable) {
-        int args_count = args_count_v<Callable>;
-        bool signature = std::is_same_v<return_t<Callable>, void>;
-        auto sig = internal::getSignature(callable);
-        _this->_functions.push_back({_name, fname, signature, args_count});
-        _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+        auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable)});
+        _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(function) });
         return *this;
     }
     
     template <typename Callable>
     JSB_ALWAYS_INLINE class_& class_function(const char* fname, Callable callable) {
-        int args_count = args_count_v<Callable>;
-        bool signature = std::is_same_v<return_t<Callable>, void>;
-        _this->_functions.push_back({_name, fname, signature, args_count, true});
-        _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+        auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable), true});
+        _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(function) });
         return *this;
     }
     
     template<typename... ConstructorArgs, typename... Policies>
     JSB_ALWAYS_INLINE class_& constructor(Policies... policies) {
-        return constructor(&operator_new<ClassType, ConstructorArgs...>, policies...);
-    }
-    
-    template<typename Callable, typename... Policies>
-    JSB_ALWAYS_INLINE class_& constructor(Callable callable, Policies...) {
-        // TODO: constructor with arguments 
-        _this->_addFunction( { "constructor", std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
-        return *this;
+        return _private("ctor", &operator_new<ClassType, ConstructorArgs...>, policies...);
     }
     
     void registerJS() override {
@@ -504,11 +486,17 @@ public:
             _this->registerJS();
             return;
         }
-        CodeGenerator::classDeclaration(_name, _functions);
+        CodeGenerator::classDeclaration(_name, _invokers);
     }
     
 private:
     class_() = default;
+    
+    template<typename Callable, typename... Policies>
+    JSB_ALWAYS_INLINE class_& _private(const std::string& fname, Callable callable, Policies...) {
+        _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable, {})) });
+        return *this;
+    }
     
     JSB_ALWAYS_INLINE void _addFunction(std::pair<std::string, std::unique_ptr<FunctionInvokerBase>>&& pair) {
         auto it = _invokers.find(pair.first);
@@ -519,8 +507,7 @@ private:
         _invokers.insert(std::move(pair));
     }
     
-    class_<ClassType>* _this = nullptr;
-    std::vector<jsb::FunctionDescriptor> _functions;
+    class_<ClassType>* _this{ nullptr };
     std::string _name;
 
 };
@@ -529,7 +516,8 @@ private:
 
 template<typename Callable, typename... Policies>
 void function(const char* fname, Callable callable, Policies...) {
-    Bridge::getInstance().invokers.insert( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable)) });
+    auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable), true});
+    Bridge::getInstance().invokers.insert( { fname, std::unique_ptr<FunctionInvokerBase>(function) });
 }
 
 

@@ -55,28 +55,30 @@ void CodeGenerator::registerBase() {
     jsb::Bridge::eval(baseClass.c_str());
 }
 
-void CodeGenerator::classDeclaration(const std::string& classname, const std::vector<FunctionDescriptor>& funcs) {
+void CodeGenerator::classDeclaration(const std::string& classname, const InvokersMap& funcs) {
     
     std::string class_start = R"(var TemplateJSBinding = function() {
 function TemplateJSBinding(ptrObject) {
     if (!ptrObject) {
-        this.ptr = Number(BridgeTS.getInstance().sync('{ "class" : "TemplateJSBinding", "function" : "constructor" }'));
+        this.ptr = Number(BridgeTS.getInstance().sync('{ "class" : "TemplateJSBinding", "function" : "ctor" }'));
     }
 }
-TemplateJSBinding._callback = function _callback(key, value) {
+TemplateJSBinding._callback = function __callback__(key, value) {
     var resolve = TemplateJSBinding.promises.get(key);
     TemplateJSBinding.promises["delete"](key);
     if (resolve) { resolve(value); }
 };
 var _proto = TemplateJSBinding.prototype;
+_proto.delete = function _dtor() {
+BridgeTS.getInstance().sync(JSON.stringify({ class : "TemplateJSBinding", function : "dtor", object : this.ptr, args : [this.ptr]}));};
 )";
     
     class_start = std::regex_replace(class_start, std::regex("TemplateJSBinding"), classname);
     std::stringstream ss(class_start, std::ios_base::app |std::ios_base::out);
     
     // function declaraions
-    for (const auto& value : funcs) {
-        ss << classFunction(value) << "\n";
+    for (const auto& [key, value] : funcs) {
+        ss << function(classname, value->descriptor) << "\n";
     }
     
     // class end
@@ -85,53 +87,64 @@ var _proto = TemplateJSBinding.prototype;
     jsb::Bridge::eval(ss.str().c_str());
 }
 
-std::string CodeGenerator::classFunction(const FunctionDescriptor& desc) {
+std::string CodeGenerator::function(const std::string& classname, const FunctionDescriptor& desc) {
+    
+    if (desc.name.empty()) {
+        return "";
+    }
+    
+    bool return_void = (desc.signature[0] == 'v');
+    size_t args_count = strlen(desc.signature)-1;
     
     std::stringstream ss("", std::ios_base::app |std::ios_base::out);
     if (desc.is_static) {
-        ss << desc.classid << ".";
+        ss << classname << ".";
     } else {
         ss << "_proto.";
     }
-    ss << desc.name << " = function " << desc.name << "(";
+    ss << desc.name << " = function _" << desc.name << "(";
     
-    for(int i = 0; i < desc.args_count; i++) {
+    for(int i = 0; i < args_count; i++) {
         ss << "v" << i;
-        if (i != desc.args_count-1) {
+        if (i != args_count-1) {
             ss << ",";
         }
     }
     ss << "){";
     
-    if (!desc.is_void) {
+    if (!return_void) {
         if (desc.is_sync) {
             ss << "return ";
         } else {
             ss << "var callid = BridgeTS.generateCallID(this.ptr);"
             "var p = new Promise(function(resolve){";
-            ss << desc.classid <<".promises.set(callid,resolve);});";
+            ss << classname <<".promises.set(callid,resolve);});";
         }
     }
     ss << ((desc.is_sync) ? "BridgeTS.getInstance().sync(JSON.stringify({ class : \"" : 
-                    "BridgeTS.getInstance().async(JSON.stringify({ class : \"") << desc.classid << "\", function : \"" << desc.name << "\"";
+                    "BridgeTS.getInstance().async(JSON.stringify({ class : \"") << classname << "\", function : \"" << desc.name << "\"";
     
     if (!desc.is_static) {
         ss << ", object : this.ptr";
     }
 
-    if (desc.args_count > 0) {
+    if (args_count > 0) {
         ss << ", args : [" ;
-        for(int i = 0; i < desc.args_count; i++) {
-            ss << "v" << i;
-            if (i != desc.args_count-1) {
+        for(int i = 0; i < args_count; i++) {
+            if (desc.signature[i+1] == 'p') {
+                ss << "v" << i << ".ptr";
+            } else {
+                ss << "v" << i;
+            }
+            if (i != args_count-1) {
                 ss << ",";
             }
         }
         ss << "]";
     }
     
-    if (!desc.is_void && !desc.is_sync) {
-        ss << ", callback : \""<< desc.classid <<" ._callback\", cid : callid })); return p;";
+    if (!return_void && !desc.is_sync) {
+        ss << ", callback : \""<< classname <<" ._callback\", cid : callid })); return p;";
     } else {
         ss << "}));";
     }

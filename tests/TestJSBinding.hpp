@@ -17,10 +17,12 @@ public:
     
     TestJSBinding() {
 //        i = num;
-        printf("constructor TestJSBinding\n");
+        printf("ctor TestJSBinding\n");
     }
     
-    ~TestJSBinding() {}
+    ~TestJSBinding() {
+        printf("dtor TestJSBinding\n");
+    }
     
     const int getNumber() {
         return i;

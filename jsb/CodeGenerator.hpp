@@ -13,11 +13,12 @@
 
 namespace jsb {
 
+struct FunctionInvokerBase;
+using InvokersMap = std::unordered_map<std::string, std::unique_ptr<FunctionInvokerBase>>;
+
 struct FunctionDescriptor {
-    std::string classid;
     std::string name;
-    bool is_void{ false }; // TODO: replace with signature, but for now it's just bool for return type. true - void, false - something
-    int args_count{ 0 };
+    const char* signature;
     bool is_static{ false };
     bool is_sync{ true };
 };
@@ -27,9 +28,9 @@ class CodeGenerator {
 public:
     static void registerBase();
 
-    static void classDeclaration(const std::string& classname, const std::vector<FunctionDescriptor>& funcs);
+    static void classDeclaration(const std::string& classname, const InvokersMap& invokers);
 
-    static std::string classFunction(const FunctionDescriptor& desc);
+    static std::string function(const std::string& classname, const FunctionDescriptor& desc);
 };
 
 }

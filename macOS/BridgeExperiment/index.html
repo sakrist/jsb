@@ -17,10 +17,10 @@ function tester() {
   var object1 = new TestJSBinding();
   object1.setNumber(20);
   object1.setString("str");
-  //object.copyFrom(object1);
-  //log('object.getNumber: ' + object.getNumber(););
+  object.copyFrom(object1);
+  log('object.getNumber: ' + object.getNumber());
   
-  //object.delete();
+  object.delete();
 };
 window.tester = tester;
 
