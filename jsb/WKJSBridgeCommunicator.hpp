@@ -26,14 +26,14 @@ public:
         std::cout << "recive: " << json << std::endl;
 #endif
         
-        std::string callback = json["callback"].is_null() ? "" : json["callback"];
-        std::string callback_id = json["cid"].is_null() ? "" : json["cid"];
+        const std::string& callback = json["callback"].is_null() ? "" : json["callback"];
+        const std::string& callback_id = json["cid"].is_null() ? "" : json["cid"];
         uintptr_t ptr = json["object"].is_null() ? 0 : json["object"].get<uintptr_t>();
         
-        std::string classid = json["class"].is_null() ? "" : json["class"];
+        const std::string& classid = json["class"].is_null() ? "" : json["class"];
         
-        jsb::JSMessageDescriptor msgStruct = { ptr, std::move(classid), json["function"],
-            std::move(callback), std::move(callback_id) };
+        jsb::JSMessageDescriptor msgStruct = { ptr, classid, json["function"],
+            callback, callback_id };
         
         msgStruct.completion = completion;
         

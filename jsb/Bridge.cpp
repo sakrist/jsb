@@ -8,9 +8,14 @@
 
 namespace jsb {
 
+std::mutex Bridge::_mutex;
+
 Bridge& Bridge::getInstance() {
     if (!_instance) {
-        _instance = new Bridge();
+        std::unique_lock<std::mutex> lock(_mutex);
+        if (!_instance) {
+            _instance = new (std::nothrow) Bridge();
+        }
     }
     return *_instance;
 }

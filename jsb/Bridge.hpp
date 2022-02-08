@@ -178,6 +178,7 @@ private:
     friend class base_class_;
     inline static Bridge* _instance{ nullptr };
     Bridge() {};
+    static std::mutex _mutex;
     
     JSB_ALWAYS_INLINE void _recive(const InvokersMap& invs, const JSMessageDescriptor& message) const noexcept(false) {
         auto invokerIt = invs.find(message.function);
