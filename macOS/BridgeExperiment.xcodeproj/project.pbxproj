@@ -49,10 +49,6 @@
 
 /* Begin PBXFileReference section */
 		35F2FD3A277DDD2900344720 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
-		D25785BF277F5BC800F4B3E0 /* bind.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = bind.cpp; sourceTree = "<group>"; };
-		D25785C0277F5BC800F4B3E0 /* val.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = val.hpp; sourceTree = "<group>"; };
-		D25785C1277F5BC800F4B3E0 /* wire.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = wire.hpp; sourceTree = "<group>"; };
-		D25785C2277F5BC800F4B3E0 /* bind.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = bind.hpp; sourceTree = "<group>"; };
 		D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TestJSClassGenerator.cpp; path = ../../tests/TestJSClassGenerator.cpp; sourceTree = "<group>"; };
 		D26E9D9F278A3E7B001C1EFD /* gtest-matchers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-matchers.h"; sourceTree = "<group>"; };
 		D26E9DA0278A3E7B001C1EFD /* gtest-death-test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-death-test.h"; sourceTree = "<group>"; };
@@ -107,8 +103,6 @@
 		D28CDE10277DD8D4009901AC /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		D28CDE30277DD963009901AC /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		D2AE454927848F4100803E36 /* class__Tests.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = class__Tests.cpp; path = ../../tests/class__Tests.cpp; sourceTree = "<group>"; };
-		D2AE45522784BA6500803E36 /* em_asm.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_asm.h; sourceTree = "<group>"; };
-		D2AE45532784BA6500803E36 /* em_js.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = em_js.h; sourceTree = "<group>"; };
 		D2DFDC9527B030A400CFCD8D /* SignatureTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SignatureTests.cpp; path = ../../tests/SignatureTests.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -138,20 +132,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		D25785BE277F5BC800F4B3E0 /* emsdk */ = {
-			isa = PBXGroup;
-			children = (
-				D25785BF277F5BC800F4B3E0 /* bind.cpp */,
-				D25785C2277F5BC800F4B3E0 /* bind.hpp */,
-				D25785C0277F5BC800F4B3E0 /* val.hpp */,
-				D25785C1277F5BC800F4B3E0 /* wire.hpp */,
-				D2AE45522784BA6500803E36 /* em_asm.h */,
-				D2AE45532784BA6500803E36 /* em_js.h */,
-			);
-			name = emsdk;
-			path = ../emsdk;
-			sourceTree = "<group>";
-		};
 		D26E9D40278A3E7A001C1EFD /* googletest */ = {
 			isa = PBXGroup;
 			children = (
@@ -244,7 +224,6 @@
 			children = (
 				35F2FD3A277DDD2900344720 /* README.md */,
 				D26E9EC327A1EE5B001C1EFD /* json.hpp */,
-				D25785BE277F5BC800F4B3E0 /* emsdk */,
 				D26E9EAD27A1ECD2001C1EFD /* jsb */,
 				D28CDDD8277DD797009901AC /* BridgeExperiment */,
 				D28CDDEF277DD7A0009901AC /* BridgeExperimentTests */,
