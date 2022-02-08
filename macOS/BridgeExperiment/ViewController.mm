@@ -90,9 +90,14 @@ public:
     }
 };
 
+int add_numbers(int a, int b) {
+    return a+b;
+}
 
 
 JSBridge_BINDINGS(my_module) {
+    
+    function("add_numbers", &add_numbers);
     
     jsb::class_<TempClass>("TempClass").constructor<>();
     

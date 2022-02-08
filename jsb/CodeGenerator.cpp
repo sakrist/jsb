@@ -125,8 +125,10 @@ std::string CodeGenerator::function(const std::string& moduleName,
             ss << className <<".promises.set(callid,resolve);});";
         }
     }
-    ss << moduleName << ((desc.is_sync) ? ".getInstance().sync(JSON.stringify({ class : \"" : 
-                    ".getInstance().async(JSON.stringify({ class : \"") << className << "\", function : \"" << desc.name << "\"";
+    
+    ss << moduleName;
+    ss << ((desc.is_sync) ? ".getInstance().sync(JSON.stringify({ class : \"" : ".getInstance().async(JSON.stringify({ class : \"");
+    ss << ((className == moduleName) ? "" : className) << "\", function : \"" << desc.name << "\"";
     
     if (!desc.is_static) {
         ss << ", object : this.ptr";

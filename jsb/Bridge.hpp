@@ -152,9 +152,15 @@ public:
         }
         _instance->_communicator = std::make_unique<T>(std::forward<Args>(args)...);
         
-        CodeGenerator::registerBase(_instance->_moduleName);
+        const auto& moduleName = _instance->_moduleName;
+        CodeGenerator::registerBase(moduleName);
         for(const auto& [key, cls] : _instance->classes) {
-            cls->registerJS(_instance->_moduleName);
+            cls->registerJS(moduleName);
+        }
+        
+        for(const auto& [key, inv] : _instance->invokers) {
+            auto jscode = CodeGenerator::function(moduleName, moduleName, inv->descriptor);
+            _instance->eval(jscode.c_str());
         }
     }
     
