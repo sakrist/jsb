@@ -10,19 +10,19 @@
 
 namespace jsb {
 
-void CodeGenerator::registerBase() {
-    const std::string baseClass = R"(
-    var BridgeTS = function () {
-      function BridgeTS() {}
-      BridgeTS.getInstance = function getInstance() {
-        if (!BridgeTS.instance) {
-          BridgeTS.instance = new BridgeTS();
+void CodeGenerator::registerBase(const std::string& moduleName) {
+    std::string moduleCode = R"(
+    var JSBModule = function () {
+      function JSBModule() {}
+      JSBModule.getInstance = function getInstance() {
+        if (!JSBModule.instance) {
+          JSBModule.instance = new JSBModule();
         }
-        return BridgeTS.instance;
+        return JSBModule.instance;
       };
-      var _proto = BridgeTS.prototype;
+      var _proto = JSBModule.prototype;
       _proto.async = function async(message) {
-        window.webkit.messageHandlers.BridgeTS.postMessage(message);
+        window.webkit.messageHandlers.JSBModule.postMessage(message);
       };
 
       _proto.sync = function sync(message) {
@@ -34,33 +34,34 @@ void CodeGenerator::registerBase() {
         return undefined;
       };
 
-      BridgeTS.generateCallID = function generateCallID(v) {
+      JSBModule.generateCallID = function generateCallID(v) {
         return (v ? v : "0") + "_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
       };
-      BridgeTS._callback = function _callback(key, value) {
-        var resolve = BridgeTS.promises.get(key);
-        BridgeTS.promises["delete"](key);
+      JSBModule._callback = function _callback(key, value) {
+        var resolve = JSBModule.promises.get(key);
+        JSBModule.promises["delete"](key);
         if (resolve) {
           resolve(value);
         }
       };
-      return BridgeTS;
+      return JSBModule;
     }();
-    BridgeTS.promises = new Map();
+    JSBModule.promises = new Map();
     )";
     
-    // TODO: replace BridgeTS with some module name
-//    class_start = std::regex_replace(class_start, std::regex("TemplateJSBinding"), classname);
+    moduleCode = std::regex_replace(moduleCode, std::regex("JSBModule"), moduleName);
     
-    jsb::Bridge::eval(baseClass.c_str());
+    jsb::Bridge::eval(moduleCode.c_str());
 }
 
-void CodeGenerator::classDeclaration(const std::string& classname, const InvokersMap& funcs) {
+void CodeGenerator::classDeclaration(const std::string& moduleName, 
+ const std::string& className, 
+ const InvokersMap& invokers) {
     
     std::string class_start = R"(var TemplateJSBinding = function() {
 function TemplateJSBinding(ptrObject) {
     if (!ptrObject) {
-        this.ptr = Number(BridgeTS.getInstance().sync('{ "class" : "TemplateJSBinding", "function" : "ctor" }'));
+        this.ptr = Number(JSBModule.getInstance().sync('{ "class" : "TemplateJSBinding", "function" : "ctor" }'));
     }
 }
 TemplateJSBinding._callback = function __callback__(key, value) {
@@ -70,24 +71,27 @@ TemplateJSBinding._callback = function __callback__(key, value) {
 };
 var _proto = TemplateJSBinding.prototype;
 _proto.delete = function _dtor() {
-BridgeTS.getInstance().sync(JSON.stringify({ class : "TemplateJSBinding", function : "dtor", object : this.ptr, args : [this.ptr]}));};
+JSBModule.getInstance().sync(JSON.stringify({ class : "TemplateJSBinding", function : "dtor", object : this.ptr, args : [this.ptr]}));};
 )";
     
-    class_start = std::regex_replace(class_start, std::regex("TemplateJSBinding"), classname);
+    class_start = std::regex_replace(class_start, std::regex("TemplateJSBinding"), className);
+    class_start = std::regex_replace(class_start, std::regex("JSBModule"), moduleName);
     std::stringstream ss(class_start, std::ios_base::app |std::ios_base::out);
     
     // function declaraions
-    for (const auto& [key, value] : funcs) {
-        ss << function(classname, value->descriptor) << "\n";
+    for (const auto& [key, value] : invokers) {
+        ss << function(moduleName, className, value->descriptor) << "\n";
     }
     
     // class end
-    ss << "return " << classname << "; }();" <<  classname << ".promises = new Map();";
+    ss << "return " << className << "; }();" <<  className << ".promises = new Map();";
     
     jsb::Bridge::eval(ss.str().c_str());
 }
 
-std::string CodeGenerator::function(const std::string& classname, const FunctionDescriptor& desc) {
+std::string CodeGenerator::function(const std::string& moduleName, 
+  const std::string& className, 
+  const FunctionDescriptor& desc) {
     
     if (desc.name.empty()) {
         return "";
@@ -98,7 +102,7 @@ std::string CodeGenerator::function(const std::string& classname, const Function
     
     std::stringstream ss("", std::ios_base::app |std::ios_base::out);
     if (desc.is_static) {
-        ss << classname << ".";
+        ss << className << ".";
     } else {
         ss << "_proto.";
     }
@@ -116,13 +120,13 @@ std::string CodeGenerator::function(const std::string& classname, const Function
         if (desc.is_sync) {
             ss << "return ";
         } else {
-            ss << "var callid = BridgeTS.generateCallID(this.ptr);"
+            ss << "var callid = " << moduleName << ".generateCallID(this.ptr);"
             "var p = new Promise(function(resolve){";
-            ss << classname <<".promises.set(callid,resolve);});";
+            ss << className <<".promises.set(callid,resolve);});";
         }
     }
-    ss << ((desc.is_sync) ? "BridgeTS.getInstance().sync(JSON.stringify({ class : \"" : 
-                    "BridgeTS.getInstance().async(JSON.stringify({ class : \"") << classname << "\", function : \"" << desc.name << "\"";
+    ss << moduleName << ((desc.is_sync) ? ".getInstance().sync(JSON.stringify({ class : \"" : 
+                    ".getInstance().async(JSON.stringify({ class : \"") << className << "\", function : \"" << desc.name << "\"";
     
     if (!desc.is_static) {
         ss << ", object : this.ptr";
@@ -144,7 +148,7 @@ std::string CodeGenerator::function(const std::string& classname, const Function
     }
     
     if (!return_void && !desc.is_sync) {
-        ss << ", callback : \""<< classname <<" ._callback\", cid : callid })); return p;";
+        ss << ", callback : \""<< className <<" ._callback\", cid : callid })); return p;";
     } else {
         ss << "}));";
     }

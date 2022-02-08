@@ -155,7 +155,7 @@ TEST(class_Tests, speedtest) {
     jsb::class_<SpeedTest>("SpeedTest")
     .constructor<>()
     .function("fromjs", &SpeedTest::fromjs)
-    .registerJS();
+    .registerJS("JSBModule");
 
     std::string code = "var st = new SpeedTest(); st.fromjs(Date.now());";
 //    Bridge::eval(code.c_str());

@@ -26,11 +26,15 @@ struct FunctionDescriptor {
 // JavaScript code generator
 class CodeGenerator {
 public:
-    static void registerBase();
+    static void registerBase(const std::string& moduleName);
 
-    static void classDeclaration(const std::string& classname, const InvokersMap& invokers);
+    static void classDeclaration(const std::string& moduleName, 
+      const std::string& className, 
+      const InvokersMap& invokers);
 
-    static std::string function(const std::string& classname, const FunctionDescriptor& desc);
+    static std::string function(const std::string& moduleName, 
+      const std::string& className, 
+      const FunctionDescriptor& desc);
 };
 
 }

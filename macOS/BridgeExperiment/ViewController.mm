@@ -13,7 +13,7 @@
 #include "TestJSBinding.hpp"
 #include "CodeGenerator.hpp"
 
-#include "em_js.h"
+//#include "em_js.h"
 
 // TODO: parse arguments and return correct result
 //EM_JS(int, foo, (int x, int y), { return 2 * x + y; });
@@ -22,9 +22,7 @@
 using namespace jsb;
 
 @implementation ViewController {
-    std::shared_ptr<WKJSBridgeCommunicator> _bridgeOperator;
     
-    std::shared_ptr<TestJSBinding> _test;
     WKWebView *webview;
 }
 
@@ -32,7 +30,7 @@ using namespace jsb;
     [super viewDidLoad];
     
     WKUserContentController *controller = [[WKUserContentController alloc] init];
-    [controller addScriptMessageHandler:self name:@"BridgeTS"];
+    [controller addScriptMessageHandler:self name:@"JSBModule"];
     
     WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
     [config.preferences setValue:@YES forKey:@"allowFileAccessFromFileURLs"];
@@ -57,7 +55,7 @@ using namespace jsb;
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
-    if ([message.name isEqualToString:@"BridgeTS"]) {
+    if ([message.name isEqualToString:@"JSBModule"]) {
         NSString *messageStr = message.body;
         Bridge::recive(messageStr.UTF8String, nullptr);
     }

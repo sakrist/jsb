@@ -117,7 +117,7 @@ public:
     virtual ~base_class_() = default;
 protected:
     friend class Bridge;
-    virtual void registerJS() = 0;
+    virtual void registerJS(const std::string& moduleName) = 0;
     InvokersMap _invokers;
 };
 using ClassesMap = std::unordered_map<std::string, std::unique_ptr<base_class_>>;
@@ -140,17 +140,21 @@ public:
         getInstance()._communicator->recive(message, std::forward<decltype(completion)>(completion));
     }
     
+    void setModuleName(std::string& name) {
+        _moduleName = name;
+    }
+    
     template <typename T, typename... Args>
     static void registerCommunicator(Args&&... args) {
         static_assert(std::is_base_of<JSBridgeCommunicator, T>::value, "Type must be derived from JSBridgeCommunicator");
-        if(getInstance()._communicator) {
+        if(_instance->_communicator) {
             assert(0);
         }
-        getInstance()._communicator = std::make_unique<T>(std::forward<Args>(args)...);
+        _instance->_communicator = std::make_unique<T>(std::forward<Args>(args)...);
         
-        CodeGenerator::registerBase();
-        for(auto& [key, cls] : getInstance().classes) {
-            cls->registerJS();
+        CodeGenerator::registerBase(_instance->_moduleName);
+        for(const auto& [key, cls] : _instance->classes) {
+            cls->registerJS(_instance->_moduleName);
         }
     }
     
@@ -175,10 +179,13 @@ public:
     ClassesMap classes;
     
 private:
-    friend class base_class_;
-    inline static Bridge* _instance{ nullptr };
     Bridge() {};
+    friend class base_class_;
+    
+    inline static Bridge* _instance{ nullptr };
     static std::mutex _mutex;
+    
+    std::string _moduleName{ "JSBModule" };
     
     JSB_ALWAYS_INLINE void _recive(const InvokersMap& invs, const JSMessageDescriptor& message) const noexcept(false) {
         auto invokerIt = invs.find(message.function);
@@ -482,12 +489,9 @@ public:
         return _private("ctor", &operator_new<ClassType, ConstructorArgs...>, policies...);
     }
     
-    void registerJS() override {
-        if (_this) {
-            _this->registerJS();
-            return;
-        }
-        CodeGenerator::classDeclaration(_name, _invokers);
+    void registerJS(const std::string& moduleName) override {
+        if (_this) { _this->registerJS(moduleName); return; }
+        CodeGenerator::classDeclaration(moduleName, _name, _invokers);
     }
     
 private:
