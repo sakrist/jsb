@@ -1,6 +1,9 @@
 
 ## Project Description
 
+The idea of the project is to create an ability to control  C++ objects from JavaScript code. 
+Similar to what Emscripten provides to developers in their solution but with a limited feature set. 
+
 Project is inspired by Emscripten's embind and later by Boost.Python.
 
 ## Targets Capabilities
