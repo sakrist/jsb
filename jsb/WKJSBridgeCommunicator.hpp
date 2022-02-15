@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "Bridge.hpp"
 
+#include "val.hpp"
 #include "json.hpp"
 using json = nlohmann::json;
 
@@ -39,7 +40,11 @@ public:
         
         const auto& args = json["args"];
         if (!args.is_null() && args.is_array() && args.size() > 0) {
-            msgStruct.args = args;
+            int i = 0;
+            for(const auto& item : args) {
+                msgStruct.args[i] = jsb::val(item);
+                i++;
+            }
         }
         
         jsb::Bridge::getInstance().recive(msgStruct);

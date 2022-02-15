@@ -38,7 +38,7 @@ TEST(class_Tests, simple_set_and_get) {
     message1.object = ptrObject;
     message1.class_id = "TestSimple";
     message1.function = "setNumber";
-    message1.args[0] = 2;
+    message1.args[0] = val(2);
     Bridge::getInstance().recive(message1);
     
     JSMessageDescriptor message2;
@@ -197,6 +197,11 @@ TEST(JSBridge_eval, async) {
     });
     ASSERT_FALSE(hit);
 }
+
+// TODO: in progress
+//TEST(class_Tests, register_int_vector) {
+//    jsb::register_vector<int>("VectorInt");
+//}
 
 
 //TEST(JSBridge_eval, return_object) {

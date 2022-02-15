@@ -16,7 +16,7 @@
 #include <type_traits>
 #include "CodeGenerator.hpp"
 
-#include "json.hpp"
+#include "val.hpp"
 
 using namespace std::placeholders;
 
@@ -87,8 +87,6 @@ public:
 };
 
 
-using Var = nlohmann::json;
-
 struct JSMessageDescriptor {
     uintptr_t object;
     std::string class_id;
@@ -101,7 +99,7 @@ struct JSMessageDescriptor {
     // sync
     std::function<void(const char*)> completion{ nullptr };
     
-    Var args;
+    val args[3];
 };
 
 struct FunctionInvokerBase {
@@ -262,7 +260,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
     }
     
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const Var& args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const val* args) {
         
         // Here we are executing function from object
         return (object_->*_f)
@@ -299,7 +297,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public Functi
     }
       
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const Var& args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const val* args) {
         
         // Here we are executing function from object
         return (object_->*_f)
@@ -337,7 +335,7 @@ struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
     }
     
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const Var& args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const val* args) {
         return (*_f)
         (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(args[S].get<
                                      typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
@@ -554,6 +552,13 @@ struct VectorAccess {
 //            return val::undefined();
 //        }
 //    }
+    
+    static typename VectorType::value_type get(
+        const VectorType& v,
+        typename VectorType::size_type index
+    ) {
+        return v[index];
+    }
 
     static bool set(
         VectorType& v,
@@ -581,8 +586,7 @@ class_<std::vector<T>> register_vector(const char* name) {
         .function("push_back", push_back)
         .function("resize", resize)
         .function("size", size)
-    // TODO: implement get set for vector
-//        .function("get", &internal::VectorAccess<VecType>::get)
+        .function("get", &internal::VectorAccess<VecType>::get)
         .function("set", &internal::VectorAccess<VecType>::set);
 }
 
