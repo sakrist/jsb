@@ -6,7 +6,16 @@ Similar to what Emscripten provides to developers in their solution but with a l
 
 Project is inspired by Emscripten's embind and later by Boost.Python.
 
-## Targets Capabilities
+## Samples
+
+- [x] macOS - look in macOS directory
+- [ ] iOS 
+- [ ] Android 
+- [ ] Windows
+
+
+
+## Features list
 
 Essential:
 
@@ -17,21 +26,20 @@ Essential:
 - [x] bind simple constructor of a class
 - [x] bind global functions
 - [x] generate funcitons JavaScript code based on bindings
-- [x] delete function for C++ class
+- [x] delete function for a C++ class
+- [x] execute generated JavaScript code at registerCommunicator
 - [ ] val as wrapper around JS object - **in progress**
-- [ ] read JS function's arguments and pass to C++ function - aka EM_JS
-
-- [ ] implement typescript interafaces generator.
-
+- [ ] read JS function's arguments and pass to a C++ function - aka EM_JS
 - [ ] bind perfect forwarding functions of a class ?? 
 - [ ] bind constructor with arguments of a class
 - [ ] bind property members of a class
-
-- [x] execute generated JavaScript code at registerCommunicator 
+- [ ] implement typescript interafaces generator.
 - [ ] bind enums
 - [ ] bind vectors - **in progress**
+
+Non-essential 
+
 - [ ] [value types](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#value-types)
-- [ ] policy - raw pointer
 - [ ] smart pointers
 - [ ] [advanced class concepts](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#advanced-class-concepts)
 - [ ] [Type conversion](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#built-in-type-conversions)
@@ -40,7 +48,8 @@ Essential:
 - [ ] EM_JS and EM_ASYNC_JS
 - [ ] simple EM_ASM
 
-Non-essential might be out of scope:
+
+Non-essential -  out of scope:
 
 - [ ] Deriving from C++ classes in JavaScript
     - [ ] [Abstract methods](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#abstract-methods)
