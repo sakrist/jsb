@@ -18,16 +18,18 @@ Essential:
 - [x] bind global functions
 - [x] generate funcitons JavaScript code based on bindings
 - [x] delete function for C++ class
-- [ ] val as wrapper around JS object
-- [ ] read JS function's arguments and pass to C++ function
+- [ ] val as wrapper around JS object - **in progress**
+- [ ] read JS function's arguments and pass to C++ function - aka EM_JS
+
+- [ ] implement typescript interafaces generator.
 
 - [ ] bind perfect forwarding functions of a class ?? 
 - [ ] bind constructor with arguments of a class
 - [ ] bind property members of a class
 
-- [x] execute generated TypeScript/JavaScript code at init 
+- [x] execute generated JavaScript code at registerCommunicator 
 - [ ] bind enums
-- [ ] bind vectors
+- [ ] bind vectors - **in progress**
 - [ ] [value types](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#value-types)
 - [ ] policy - raw pointer
 - [ ] smart pointers

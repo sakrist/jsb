@@ -586,8 +586,9 @@ class_<std::vector<T>> register_vector(const char* name) {
         .function("push_back", push_back)
         .function("resize", resize)
         .function("size", size)
-        .function("get", &internal::VectorAccess<VecType>::get)
-        .function("set", &internal::VectorAccess<VecType>::set);
+//        .function("get", &internal::VectorAccess<VecType>::get)
+//        .function("set", &internal::VectorAccess<VecType>::set)
+    ;
 }
 
 
