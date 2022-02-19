@@ -477,14 +477,14 @@ public:
     template <typename Callable>
     JSB_ALWAYS_INLINE class_& function(const char* fname, Callable callable) {
         auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable)});
-        _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(function) });
+        _this->_addFunction(fname, std::unique_ptr<FunctionInvokerBase>(function));
         return *this;
     }
     
     template <typename Callable>
     JSB_ALWAYS_INLINE class_& class_function(const char* fname, Callable callable) {
         auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable), true});
-        _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(function) });
+        _this->_addFunction(fname, std::unique_ptr<FunctionInvokerBase>(function));
         return *this;
     }
     
@@ -503,17 +503,17 @@ private:
     
     template<typename Callable, typename... Policies>
     JSB_ALWAYS_INLINE class_& _private(const std::string& fname, Callable callable, Policies...) {
-        _this->_addFunction( { fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable, {})) });
+        _this->_addFunction(fname, std::unique_ptr<FunctionInvokerBase>(new FunctionInvoker<Callable>(callable, {})));
         return *this;
     }
     
-    JSB_ALWAYS_INLINE void _addFunction(std::pair<std::string, std::unique_ptr<FunctionInvokerBase>>&& pair) {
-        auto it = _invokers.find(pair.first);
+    JSB_ALWAYS_INLINE void _addFunction(const std::string& name, std::unique_ptr<FunctionInvokerBase>&& func) {
+        auto it = _invokers.find(name);
         if (it != _invokers.end()) {
-            printf("Error: overriding key: %s\n", pair.first.c_str());
+            printf("Error: overriding key: %s\n", name.c_str());
             assert(0);
         }
-        _invokers.insert(std::move(pair));
+        _invokers[name] = std::move(func);
     }
     
     class_<ClassType>* _this{ nullptr };
@@ -575,7 +575,7 @@ struct VectorAccess {
 
 
 template<typename T>
-class_<std::vector<T>> register_vector(const char* name) {
+class_<std::vector<T>>& register_vector(const char* name) {
     typedef std::vector<T> VecType;
 
     void (VecType::*push_back)(const T&) = &VecType::push_back;

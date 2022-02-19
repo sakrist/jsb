@@ -97,6 +97,8 @@ int add_numbers(int a, int b) {
 
 JSBridge_BINDINGS(my_module) {
     
+    jsb::register_vector<int>("VectorInt");
+    
     function("add_numbers", &add_numbers);
     
     jsb::class_<TempClass>("TempClass").constructor<>();
