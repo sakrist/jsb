@@ -2,7 +2,7 @@
 ## Project Description
 
 The idea of the project is to create an ability to control  C++ objects from JavaScript code. 
-Similar to what Emscripten provides to developers in their solution but with a limited feature set. 
+Similar to what Emscripten provides to developers in their solution but with a limited feature set due memory access limitations. 
 
 Project is inspired by Emscripten's embind and later by Boost.Python.
 
@@ -14,6 +14,38 @@ Project is inspired by Emscripten's embind and later by Boost.Python.
 - [ ] Windows
 
 
+#### macOS
+Look into `ViewController.mm`  to see on how to register Bridge communicator.
+
+Example on how to bind C++ code:
+```cpp
+class TestJSBinding  {
+public:
+    TestJSBinding() { }
+    
+    int getNumber() {
+        return i;
+    }
+    void setNumber(int newi) {
+        i = newi;
+    }
+    int i;
+}
+
+
+jsb::class_<TestJSBinding>("TestJSBinding")
+.constructor<>()
+.function("setNumber", &TestJSBinding::setNumber)
+.function("getNumber", &TestJSBinding::getNumber);
+```
+
+In javascript:
+```javascript
+var object = new TestJSBinding();
+object.setNumber(10);
+var value2 = object.getNumber();
+object.delete();
+```
 
 ## Features list
 

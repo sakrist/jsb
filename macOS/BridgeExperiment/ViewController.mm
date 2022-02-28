@@ -97,7 +97,7 @@ int add_numbers(int a, int b) {
 
 JSBridge_BINDINGS(my_module) {
     
-    jsb::register_vector<int>("VectorInt");
+    jsb::register_vector<int>("VectorInt").constructor(&vecIntFromIntPointer);
     
     function("add_numbers", &add_numbers);
     
@@ -129,7 +129,6 @@ JSBridge_BINDINGS(my_module) {
 //        .function("voidPtr", &TestJSBinding::voidPtr)
         .class_function("randomNumber", &TestJSBinding::randomNumber);
     
-//    jsb::register_vector<int>("VectorInt").constructor(&vecIntFromIntPointer);
 }
 
 

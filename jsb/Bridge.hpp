@@ -493,6 +493,11 @@ public:
         return _private("ctor", &operator_new<ClassType, ConstructorArgs...>, policies...);
     }
     
+    template<typename Callable, typename... Policies>
+    JSB_ALWAYS_INLINE class_& constructor(Callable callable, Policies... policies) {
+        return _private("ctorc", callable, policies...);
+    }
+    
     void registerJS(const std::string& moduleName) override {
         if (_this) { _this->registerJS(moduleName); return; }
         CodeGenerator::classDeclaration(moduleName, _name, _invokers);

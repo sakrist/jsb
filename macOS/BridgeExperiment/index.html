@@ -23,6 +23,12 @@ function tester() {
   object.delete();
   
   log('add_numbers: ' + JSBModule.add_numbers(1, 4));
+  
+  var vec = new VectorInt();
+  vec.push_back(1);
+  log('vector size: ' + vec.size());
+  vec.delete();
+  
 };
 window.tester = tester;
 
