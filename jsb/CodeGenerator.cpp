@@ -8,6 +8,13 @@
 #include <string>
 #include <regex>
 
+
+template <typename T>
+bool operator&(T a, T b) {
+  return (static_cast<std::underlying_type_t<T>>(a) &
+                        static_cast<std::underlying_type_t<T>>(b)) > 0;
+}
+
 namespace jsb {
 
 void CodeGenerator::registerBase(const std::string& moduleName) {
@@ -101,14 +108,17 @@ std::string CodeGenerator::function(const std::string& moduleName,
     size_t args_count = strlen(desc.signature)-1;
     
     std::stringstream ss("", std::ios_base::app |std::ios_base::out);
-    if (desc.is_static) {
+    if (desc.config & FunctionDescriptor::Configuration::Static) {
         ss << className << ".";
     } else {
         ss << "_proto.";
     }
     ss << desc.name << " = function _" << desc.name << "(";
     
-    for(int i = 0; i < args_count; i++) {
+    
+    int i = (desc.config & FunctionDescriptor::Configuration::Class) ? 1 : 0;
+
+    for(; i < args_count; i++) {
         ss << "v" << i;
         if (i != args_count-1) {
             ss << ",";
@@ -117,7 +127,7 @@ std::string CodeGenerator::function(const std::string& moduleName,
     ss << "){";
     
     if (!return_void) {
-        if (desc.is_sync) {
+        if (desc.config & FunctionDescriptor::Configuration::Sync) {
             ss << "return ";
         } else {
             ss << "var callid = " << moduleName << ".generateCallID(this.ptr);"
@@ -127,16 +137,22 @@ std::string CodeGenerator::function(const std::string& moduleName,
     }
     
     ss << moduleName;
-    ss << ((desc.is_sync) ? ".getInstance().sync(JSON.stringify({ class : \"" : ".getInstance().async(JSON.stringify({ class : \"");
+    ss << ((desc.config & FunctionDescriptor::Configuration::Sync) ? ".getInstance().sync(JSON.stringify({ class : \"" : ".getInstance().async(JSON.stringify({ class : \"");
     ss << ((className == moduleName) ? "" : className) << "\", function : \"" << desc.name << "\"";
     
-    if (!desc.is_static) {
+    if (!(desc.config & FunctionDescriptor::Configuration::Static)) {
         ss << ", object : this.ptr";
     }
 
     if (args_count > 0) {
         ss << ", args : [" ;
-        for(int i = 0; i < args_count; i++) {
+        
+        int i = 0;
+        if ((desc.config & FunctionDescriptor::Configuration::Class)) {
+            i = 1;
+            ss << "this.ptr, " ;
+        }
+        for(; i < args_count; i++) {
             if (desc.signature[i+1] == 'p') {
                 ss << "v" << i << ".ptr";
             } else {
@@ -149,7 +165,7 @@ std::string CodeGenerator::function(const std::string& moduleName,
         ss << "]";
     }
     
-    if (!return_void && !desc.is_sync) {
+    if (!return_void && !(desc.config & FunctionDescriptor::Configuration::Sync)) {
         ss << ", callback : \""<< className <<" ._callback\", cid : callid })); return p;";
     } else {
         ss << "}));";

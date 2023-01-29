@@ -103,6 +103,8 @@
 		D28CDE0F277DD8D4009901AC /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		D28CDE10277DD8D4009901AC /* ViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		D28CDE30277DD963009901AC /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		D2A1F5C62985797000266AF4 /* MessageDescriptor.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = MessageDescriptor.hpp; sourceTree = "<group>"; };
+		D2A1F5C8298579FF00266AF4 /* Helpers.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Helpers.hpp; sourceTree = "<group>"; };
 		D2DFDC9527B030A400CFCD8D /* SignatureTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SignatureTests.cpp; path = ../../tests/SignatureTests.cpp; sourceTree = "<group>"; };
 		D2DFDCA627BC49E300CFCD8D /* class_Tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = class_Tests.cpp; path = ../../tests/class_Tests.cpp; sourceTree = "<group>"; };
 		D2DFDCAB27BC49EC00CFCD8D /* valTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = valTests.cpp; path = ../../tests/valTests.cpp; sourceTree = "<group>"; };
@@ -210,8 +212,10 @@
 			isa = PBXGroup;
 			children = (
 				D26E9EF227A71985001C1EFD /* val.hpp */,
+				D2A1F5C8298579FF00266AF4 /* Helpers.hpp */,
 				D26E9EB227A1ECD2001C1EFD /* Bridge.cpp */,
 				D26E9EB027A1ECD2001C1EFD /* Bridge.hpp */,
+				D2A1F5C62985797000266AF4 /* MessageDescriptor.hpp */,
 				D26E9EAE27A1ECD2001C1EFD /* CodeGenerator.cpp */,
 				D26E9EB127A1ECD2001C1EFD /* CodeGenerator.hpp */,
 				D26E9EAF27A1ECD2001C1EFD /* WKJSBridgeCommunicator.hpp */,
@@ -357,7 +361,7 @@
 		D28CDDCE277DD797009901AC /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1240;
+				LastUpgradeCheck = 1410;
 				TargetAttributes = {
 					D28CDDD5277DD797009901AC = {
 						CreatedOnToolsVersion = 12.4;
@@ -520,6 +524,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -579,6 +584,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -603,8 +609,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
@@ -623,8 +632,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
@@ -641,8 +653,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				HEADER_SEARCH_PATHS = (
 					$SRCROOT/../gtest/googletest/include,
@@ -665,8 +679,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				HEADER_SEARCH_PATHS = (
 					$SRCROOT/../gtest/googletest/include,
@@ -688,9 +704,12 @@
 		D28CDE07277DD7A0009901AC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				INFOPLIST_FILE = BridgeExperimentUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -699,6 +718,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.sakrist.BridgeExperimentUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TEST_TARGET_NAME = BridgeExperiment;
 			};
 			name = Debug;
@@ -706,9 +726,12 @@
 		D28CDE08277DD7A0009901AC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEAD_CODE_STRIPPING = YES;
+				DEVELOPMENT_TEAM = DHKZ7WR43P;
 				INFOPLIST_FILE = BridgeExperimentUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -717,6 +740,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.sakrist.BridgeExperimentUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TEST_TARGET_NAME = BridgeExperiment;
 			};
 			name = Release;

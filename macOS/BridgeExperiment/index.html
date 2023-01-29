@@ -17,6 +17,11 @@ function tester() {
   var object1 = new TestJSBinding();
   object1.setNumber(20);
   object1.setString("str");
+  
+  //object1.setString2("hello");
+  //var result = object1.getString2();
+  //log(result + ' world!');
+  
   object.copyFrom(object1);
   log('object.getNumber: ' + object.getNumber());
   
@@ -26,7 +31,16 @@ function tester() {
   
   var vec = new VectorInt();
   vec.push_back(1);
+  vec.push_back(345);
+  vec.push_back(7);
+  vec.push_back(1324);
   log('vector size: ' + vec.size());
+  
+  log('vector get value at 2: ' + vec.get(2));
+  
+  log('set value 1000 at 1 result:' + vec.set(1, 1000));
+  
+  log('vector get value at 1: ' + vec.get(1));
   vec.delete();
   
 };

@@ -29,6 +29,15 @@ public:
         return _object.get<T>();
     }
     
+    std::string get() {
+        return _object.get<std::string>();
+    }
+    
+    template <typename T, std::enable_if_t<std::is_pointer_v<T>, int> = 0>
+    uintptr_t get() {
+        return _object.get<uintptr_t>();
+    }
+    
     
 private:
     nlohmann::json _object;

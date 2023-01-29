@@ -15,64 +15,15 @@
 #include <vector>
 #include <type_traits>
 #include "CodeGenerator.hpp"
+#include "MessageDescriptor.hpp"
+#include "Helpers.hpp"
 
-#include "val.hpp"
 
 using namespace std::placeholders;
 
-#define JSB_ALWAYS_INLINE __attribute__((always_inline))
-
-// copy of EMSCRIPTEN_BINDINGS/BOOST_PYTHON_MODULE for compatibility reason.
-#define JSBridge_BINDINGS(name)                                         \
-    static struct JSBridgeBindingInitializer_##name {                   \
-          JSBridgeBindingInitializer_##name();                          \
-    } JSBridgeBindingInitializer_##name##_instance;                     \
-JSBridgeBindingInitializer_##name::JSBridgeBindingInitializer_##name()
 
 namespace jsb {
 
-template <typename T>
-struct compatible_type {
-    inline static constexpr bool value = (std::is_arithmetic<T>::value
-                                          || std::is_same_v<T, void>
-                                          || std::is_same_v<T, uintptr_t>
-                                          || std::is_same_v<T, std::string>
-                                          || std::is_pointer_v<T>
-                                          );
-};
-
-template<typename T>
-inline constexpr bool compatible_type_v = compatible_type<T>::value;
-
-#if __cplusplus < 202002L
-template <typename T>
-struct remove_cvref : std::remove_cv<std::remove_reference_t<T>> { };
-//struct remove_cvref : std::remove_cv<std::remove_reference_t<std::remove_pointer_t<T>>> { };
-template <class _Tp>
-using remove_cvref_t = typename remove_cvref<_Tp>::type;
-#endif
-
-
-
-template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
-JSB_ALWAYS_INLINE auto arg_converter(T val) {
-    return val;
-};
-
-template <typename T, std::enable_if_t<!std::is_arithmetic_v<T>, int> = 0>
-JSB_ALWAYS_INLINE auto arg_converter(T&& val) {
-    return std::forward<T>(val);
-};
-
-template <typename T, std::enable_if_t<std::is_pointer_v<T>, int> = 0>
-JSB_ALWAYS_INLINE T arg_converter(uintptr_t val) {
-    return reinterpret_cast<T>(val);
-};
-
-
-//class CodeGenerator {
-//    void 
-//};
 
 class JSBridgeCommunicator {
 public:
@@ -87,27 +38,23 @@ public:
 };
 
 
-struct JSMessageDescriptor {
-    uintptr_t object;
-    std::string class_id;
-    std::string function;
-    
-    // for async
-    std::string callback;
-    std::string callback_id;
-    
-    // sync
-    std::function<void(const char*)> completion{ nullptr };
-    
-    val args[3];
+
+// MARK: - FunctionInvokerBase
+enum class InvokerType {
+    Function,
+    ClassFunction,
+    ClassFunctionConst
 };
 
 struct FunctionInvokerBase {
     FunctionInvokerBase(FunctionDescriptor aDescriptor) : descriptor(aDescriptor) {}
-    virtual void invoke(const JSMessageDescriptor& message) {};
+    virtual void invoke(const MessageDescriptor& message) {};
+    virtual InvokerType getType() { return InvokerType::Function; };
     const FunctionDescriptor descriptor;
 };
 using InvokersMap = std::unordered_map<std::string, std::unique_ptr<FunctionInvokerBase>>;
+
+// MARK: -
 
 class Bridge;
 class base_class_ {
@@ -162,7 +109,7 @@ public:
         }
     }
     
-    void recive(JSMessageDescriptor& message) const noexcept(false) {
+    void recive(MessageDescriptor& message) const noexcept(false) {
         if (message.class_id.empty()) {
             _recive(invokers, message);
         } else {
@@ -191,7 +138,7 @@ private:
     
     std::string _moduleName{ "JSBModule" };
     
-    JSB_ALWAYS_INLINE void _recive(const InvokersMap& invs, const JSMessageDescriptor& message) const noexcept(false) {
+    JSB_ALWAYS_INLINE void _recive(const InvokersMap& invs, const MessageDescriptor& message) const noexcept(false) {
         auto invokerIt = invs.find(message.function);
         if (invokerIt != invs.end()) {
             invokerIt->second->invoke(message);
@@ -206,14 +153,14 @@ private:
     std::unique_ptr<JSBridgeCommunicator> _communicator;
 };
 
-JSB_ALWAYS_INLINE inline static void functionVoid(const JSMessageDescriptor& message) {
+JSB_ALWAYS_INLINE inline static void functionVoid(const MessageDescriptor& message) {
     if (message.completion) {
         message.completion("");
     }
 }
 
 template<typename R>
-JSB_ALWAYS_INLINE static void functionReturn(const JSMessageDescriptor& message, R&& value) {
+JSB_ALWAYS_INLINE static void functionReturn(const MessageDescriptor& message, R&& value) {
     
     if (message.completion) {
         std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
@@ -228,11 +175,11 @@ JSB_ALWAYS_INLINE static void functionReturn(const JSMessageDescriptor& message,
 #if DEBUG
         std::cout << "return: " << ss.str() << std::endl;
 #endif
-
+        
         message.completion(ss.str().c_str());
     } else {
         assert(!message.callback.empty() && !message.callback_id.empty());
-
+        
         // async approach
         std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
         ss << "(\"" << message.callback_id << "\", ";
@@ -247,6 +194,7 @@ JSB_ALWAYS_INLINE static void functionReturn(const JSMessageDescriptor& message,
     }
 }
 
+// MARK: - FunctionInvoker
 
 template<typename T>
 struct FunctionInvoker;
@@ -262,19 +210,26 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
     template<std::size_t... S>
     JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const val* args) {
         
-        // Here we are executing function from object
+        using tupleArgs = std::tuple<Args...>;
+        
+            // determine the type to use for argument conversion
+          // convert each argument using the arg_converter and put result in a tuple
+        // pass the converted arguments to the function and invoke it
         return (object_->*_f)
-        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(args[S].get<
-                                  typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
-                                         uintptr_t,
-                                         remove_cvref_t<std::tuple_element_t<S, std::tuple<Args...>>>>::type
-                                 >())...);
+        (arg_converter<std::tuple_element_t<S, tupleArgs>>(
+                                args[S].get<
+                                          typename std::conditional<is_ref_or_pointer_v<std::tuple_element_t<S, tupleArgs>>,
+                                          uintptr_t,
+                                          remove_cvref_t<std::tuple_element_t<S, tupleArgs>>>::type
+                                    >())...);
     }
       
-    void invoke(const JSMessageDescriptor& message) override {
+    void invoke(const MessageDescriptor& message) override {
         assert(message.object);
         
+        
         ClassType* object_ = reinterpret_cast<ClassType*>(message.object);
+                
         auto sequence = std::index_sequence_for<Args...>{};
         if constexpr (std::is_same_v<ReturnType, void>) {
             _invoke(object_, sequence, message.args);
@@ -284,10 +239,15 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
         }
     };
 
+    InvokerType getType() override {
+        return InvokerType::ClassFunction;
+    };
+    
 private:
     ReturnType (ClassType::*_f)(Args...);
 };
 
+// same as above but with const
 template<typename ReturnType, typename ClassType, typename... Args>
 struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public FunctionInvokerBase {
     
@@ -299,16 +259,21 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public Functi
     template<std::size_t... S>
     JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const val* args) {
         
-        // Here we are executing function from object
+        using tupleArgs = std::tuple<Args...>;
+        
+            // determine the type to use for argument conversion
+          // convert each argument using the arg_converter and put result in a tuple
+        // pass the converted arguments to the function and invoke it
         return (object_->*_f)
-        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(args[S].get<
-                                  typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
-                                         uintptr_t,
-                                         remove_cvref_t<std::tuple_element_t<S, std::tuple<Args...>>>>::type
-                                 >())...);
+        (arg_converter<std::tuple_element_t<S, tupleArgs>>(
+                                args[S].get<
+                                          typename std::conditional<is_ref_or_pointer_v<std::tuple_element_t<S, tupleArgs>>,
+                                          uintptr_t,
+                                          remove_cvref_t<std::tuple_element_t<S, tupleArgs>>>::type
+                                    >())...);
     }
       
-    void invoke(const JSMessageDescriptor& message) override {
+    void invoke(const MessageDescriptor& message) override {
         assert(message.object);
         
         ClassType* object_ = reinterpret_cast<ClassType*>(message.object);
@@ -321,6 +286,10 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public Functi
         }
     };
 
+    InvokerType getType() override {
+        return InvokerType::ClassFunctionConst;
+    };
+    
 private:
     ReturnType (ClassType::*_f)(Args...) const;
 };
@@ -336,15 +305,24 @@ struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
     
     template<std::size_t... S>
     JSB_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const val* args) {
+        
+        // create a tuple of argument types
+        using tupleArgs = std::tuple<Args...>;
+        
+        
+            // determine the type to use for argument conversion
+          // convert each argument using the arg_converter and put result in a tuple
+        // pass the converted arguments to the function and invoke it
         return (*_f)
-        (arg_converter<std::tuple_element_t<S, std::tuple<Args...>>>(args[S].get<
-                                     typename std::conditional<std::is_pointer_v<std::tuple_element_t<S, std::tuple<Args...>>>,
-                                            uintptr_t,
-                                            remove_cvref_t<std::tuple_element_t<S, std::tuple<Args...>>>>::type
+        (arg_converter<std::tuple_element_t<S, tupleArgs>>(
+                                args[S].get<
+                                          typename std::conditional<is_ref_or_pointer_v<std::tuple_element_t<S, tupleArgs>>,
+                                          uintptr_t,
+                                          remove_cvref_t<std::tuple_element_t<S, tupleArgs>>>::type
                                     >())...);
     }
       
-    void invoke(const JSMessageDescriptor& message) override {
+    void invoke(const MessageDescriptor& message) override {
         auto sequence = std::index_sequence_for<Args...>{};
         if constexpr (std::is_same_v<ReturnType, void>) {
             _invoke(sequence, message.args);
@@ -358,15 +336,6 @@ private:
     ReturnType (*_f)(Args...);
 };
 
-template<typename ClassType, typename... Args>
-JSB_ALWAYS_INLINE ClassType* operator_new(Args&&... args) {
-    return new ClassType(std::forward<Args>(args)...);
-}
-
-template<typename ClassType>
-void raw_destructor(ClassType* ptr) {
-    delete ptr;
-}
 
 template<typename T>
 using return_t = typename FunctionInvoker<T>::rtype;
@@ -374,9 +343,9 @@ using return_t = typename FunctionInvoker<T>::rtype;
 template<typename T>
 inline constexpr int args_count_v = FunctionInvoker<T>::args_count;
 
-////////////////////////////////////////////////////////////////////////////////
-// SignatureCode, SignatureString
-////////////////////////////////////////////////////////////////////////////////
+
+
+// MARK: - SignatureCode, SignatureString
 
 namespace internal {
 
@@ -454,6 +423,18 @@ JSB_ALWAYS_INLINE const char* getSignature(Return (Class::*)(Args...)) {
 } // end namespace internal
 
 
+// MARK: - Class
+
+template<typename ClassType, typename... Args>
+JSB_ALWAYS_INLINE ClassType* operator_new(Args&&... args) {
+    return new ClassType(std::forward<Args>(args)...);
+}
+
+template<typename ClassType>
+void raw_destructor(ClassType* ptr) {
+    delete ptr;
+}
+
 template<typename ClassType>
 class class_ : public base_class_ {
     
@@ -476,14 +457,23 @@ public:
     
     template <typename Callable>
     JSB_ALWAYS_INLINE class_& function(const char* fname, Callable callable) {
-        auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable)});
+        
+        FunctionDescriptor::Configuration config = FunctionDescriptor::Configuration::Sync;
+        if constexpr (!is_class_function<Callable>::value) {
+            config = FunctionDescriptor::Configuration::Sync | FunctionDescriptor::Configuration::Class;
+        }
+        auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable), config});
         _this->_addFunction(fname, std::unique_ptr<FunctionInvokerBase>(function));
+        
         return *this;
     }
     
     template <typename Callable>
     JSB_ALWAYS_INLINE class_& class_function(const char* fname, Callable callable) {
-        auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable), true});
+        
+        auto config = FunctionDescriptor::Configuration::Static | FunctionDescriptor::Configuration::Sync;
+        
+        auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable), config});
         _this->_addFunction(fname, std::unique_ptr<FunctionInvokerBase>(function));
         return *this;
     }
@@ -530,7 +520,8 @@ private:
 
 template<typename Callable, typename... Policies>
 void function(const char* fname, Callable callable, Policies...) {
-    auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable), true});
+    auto config = FunctionDescriptor::Configuration::Static | FunctionDescriptor::Configuration::Sync;
+    auto function = new FunctionInvoker<Callable>(callable, {fname, internal::getSignature(callable), config});
     Bridge::getInstance().invokers.insert( { fname, std::unique_ptr<FunctionInvokerBase>(function) });
 }
 
@@ -546,31 +537,26 @@ namespace internal {
 
 template<typename VectorType>
 struct VectorAccess {
-    // TODO: impl
-//    static val get(
-//        const VectorType& v,
-//        typename VectorType::size_type index
-//    ) {
-//        if (index < v.size()) {
-//            return val(v[index]);
-//        } else {
-//            return val::undefined();
-//        }
-//    }
     
     static typename VectorType::value_type get(
-        const VectorType& v,
+        const VectorType* v,
         typename VectorType::size_type index
     ) {
-        return v[index];
+        if (index >= v->size() || index < 0) {
+            throw std::out_of_range("index out of range");
+        }
+        return v->at(index);
     }
 
     static bool set(
-        VectorType& v,
+        VectorType* v,
         typename VectorType::size_type index,
         const typename VectorType::value_type& value
     ) {
-        v[index] = value;
+        if (index >= v->size() || index < 0) {
+            return false;
+        }
+        v->at(index) = value;
         return true;
     }
 };
@@ -591,8 +577,8 @@ class_<std::vector<T>>& register_vector(const char* name) {
         .function("push_back", push_back)
         .function("resize", resize)
         .function("size", size)
-//        .function("get", &internal::VectorAccess<VecType>::get)
-//        .function("set", &internal::VectorAccess<VecType>::set)
+        .function("get", &internal::VectorAccess<VecType>::get)
+        .function("set", &internal::VectorAccess<VecType>::set)
     ;
 }
 

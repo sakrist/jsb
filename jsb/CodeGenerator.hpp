@@ -13,14 +13,31 @@
 
 namespace jsb {
 
+template <typename T>
+T operator|(T a, T b) {
+  return static_cast<T>(static_cast<std::underlying_type_t<T>>(a) |
+                        static_cast<std::underlying_type_t<T>>(b));
+}
+
 struct FunctionInvokerBase;
 using InvokersMap = std::unordered_map<std::string, std::unique_ptr<FunctionInvokerBase>>;
 
 struct FunctionDescriptor {
+    
+    enum class Configuration : unsigned int {
+        None = 0,
+        Sync = 1 << 1,
+        Static = 1 << 2,
+        Class = 1 << 3
+    };
+
+    
     std::string name;
     const char* signature;
-    bool is_static{ false };
-    bool is_sync{ true };
+    Configuration config = Configuration::Sync;
+//    bool is_static{ false };
+//    bool is_sync{ true };
+//    bool is_class{ false }; // assign function to the class, so first argument is
 };
 
 // JavaScript code generator

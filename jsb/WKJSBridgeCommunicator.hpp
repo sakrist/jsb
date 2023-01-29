@@ -33,7 +33,7 @@ public:
         
         const std::string& classid = json["class"].is_null() ? "" : json["class"];
         
-        jsb::JSMessageDescriptor msgStruct = { ptr, classid, json["function"],
+        jsb::MessageDescriptor msgStruct = { ptr, classid, json["function"],
             callback, callback_id };
         
         msgStruct.completion = completion;

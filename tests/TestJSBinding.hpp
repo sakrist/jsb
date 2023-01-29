@@ -9,7 +9,8 @@
 #define TestJSBinding_hpp
 
 #include <stdio.h>
-#include "Bridge.hpp"
+#include <string>
+
 
 
 class TestJSBinding  {
@@ -60,7 +61,7 @@ public:
     }
     
     static int randomNumber(int modifier) {
-        return arc4random() % modifier;
+        return rand() % modifier;
     }
     
     void* voidPtr() {
@@ -92,5 +93,14 @@ public:
     char r[10] = "string\0";
     int i = 0;
 };
+
+
+static void setString2(TestJSBinding& object, std::string string) {
+    object._str = string;
+}
+
+static std::string getString2(TestJSBinding& object) {
+    return object._str;
+}
 
 #endif /* TestJSBinding_hpp */

@@ -34,14 +34,14 @@ TEST(class_Tests, simple_set_and_get) {
     auto test = std::make_shared<TestSimple>();
     uintptr_t ptrObject = reinterpret_cast<uintptr_t>(test.get());
     
-    JSMessageDescriptor message1;
+    MessageDescriptor message1;
     message1.object = ptrObject;
     message1.class_id = "TestSimple";
     message1.function = "setNumber";
     message1.args[0] = val(2);
     Bridge::getInstance().recive(message1);
     
-    JSMessageDescriptor message2;
+    MessageDescriptor message2;
     message2.object = ptrObject;
     message2.class_id = "TestSimple";
     message2.function = "getNumber";
