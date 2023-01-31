@@ -99,20 +99,25 @@ JSBridge_BINDINGS(my_module) {
     
     jsb::register_vector<int>("VectorInt").constructor(&vecIntFromIntPointer);
     
+//    jsb::register_map<std::string, int>("MapSi");
+    
+    jsb::register_vector<std::string>("VectorString");
+    
     function("add_numbers", &add_numbers);
     
     jsb::class_<TempClass>("TempClass").constructor<>();
     
     jsb::class_<TestJSBinding>("TestJSBinding")
     .constructor<>()
+    .smart_ptr<std::shared_ptr<TestJSBinding>>("TestJSBindingPtr")
     .function("setNumber", &TestJSBinding::setNumber)
     .function("setNumberf", &TestJSBinding::setNumberf)
     .function("setNumberd", &TestJSBinding::setNumberd)
     .function("getNumber", &TestJSBinding::getNumber)
     .function("const_func", &TestJSBinding::const_func)
     .function("setString", &TestJSBinding::setString)
-//    .function("setString2", &setString2)
-//    .function("getString2", &getString2)
+    .function("setString2", &setString2)
+    .function("getString2", &getString2)
     
 //    .function("setNumber2", &TestJSBinding::setNumber2)
 //    .function("voidPtr", &TestJSBinding::voidPtr)

@@ -196,6 +196,15 @@ JSB_ALWAYS_INLINE static void functionReturn(const MessageDescriptor& message, R
 
 // MARK: - FunctionInvoker
 
+// use uintptr_t for ref or pointers
+template <typename _Tp>
+using convert_if_object_t = typename std::conditional<is_ref_or_pointer_v<_Tp>, uintptr_t, remove_cvref_t<_Tp>>::type;
+
+// use std::string or outcome of convert_if_object_t
+template <typename _Tp>
+using convert_t = typename std::conditional<is_string_v<_Tp>, remove_cvref_t<_Tp>, convert_if_object_t<_Tp>>::type;
+
+
 template<typename T>
 struct FunctionInvoker;
 
@@ -217,11 +226,8 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
         // pass the converted arguments to the function and invoke it
         return (object_->*_f)
         (arg_converter<std::tuple_element_t<S, tupleArgs>>(
-                                args[S].get<
-                                          typename std::conditional<is_ref_or_pointer_v<std::tuple_element_t<S, tupleArgs>>,
-                                          uintptr_t,
-                                          remove_cvref_t<std::tuple_element_t<S, tupleArgs>>>::type
-                                    >())...);
+                                args[S].get<convert_t<std::tuple_element_t<S, tupleArgs>>>()
+                                                           )...);
     }
       
     void invoke(const MessageDescriptor& message) override {
@@ -266,11 +272,8 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public Functi
         // pass the converted arguments to the function and invoke it
         return (object_->*_f)
         (arg_converter<std::tuple_element_t<S, tupleArgs>>(
-                                args[S].get<
-                                          typename std::conditional<is_ref_or_pointer_v<std::tuple_element_t<S, tupleArgs>>,
-                                          uintptr_t,
-                                          remove_cvref_t<std::tuple_element_t<S, tupleArgs>>>::type
-                                    >())...);
+                                args[S].get<convert_t<std::tuple_element_t<S, tupleArgs>>>()
+                                                           )...);
     }
       
     void invoke(const MessageDescriptor& message) override {
@@ -315,11 +318,8 @@ struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
         // pass the converted arguments to the function and invoke it
         return (*_f)
         (arg_converter<std::tuple_element_t<S, tupleArgs>>(
-                                args[S].get<
-                                          typename std::conditional<is_ref_or_pointer_v<std::tuple_element_t<S, tupleArgs>>,
-                                          uintptr_t,
-                                          remove_cvref_t<std::tuple_element_t<S, tupleArgs>>>::type
-                                    >())...);
+                                args[S].get<convert_t<std::tuple_element_t<S, tupleArgs>>>()
+                                                           )...);
     }
       
     void invoke(const MessageDescriptor& message) override {
@@ -455,6 +455,13 @@ public:
         _private("dtor", &raw_destructor<ClassType>);
     }
     
+    template <typename T>
+    JSB_ALWAYS_INLINE class_& smart_ptr(const char* name) {
+        // TODO: impl
+        assert(0);
+        return *this;
+    }
+    
     template <typename Callable>
     JSB_ALWAYS_INLINE class_& function(const char* fname, Callable callable) {
         
@@ -539,24 +546,24 @@ template<typename VectorType>
 struct VectorAccess {
     
     static typename VectorType::value_type get(
-        const VectorType* v,
+        const VectorType& v,
         typename VectorType::size_type index
     ) {
-        if (index >= v->size() || index < 0) {
+        if (index >= v.size() || index < 0) {
             throw std::out_of_range("index out of range");
         }
-        return v->at(index);
+        return v[index];
     }
 
     static bool set(
-        VectorType* v,
+        VectorType& v,
         typename VectorType::size_type index,
         const typename VectorType::value_type& value
     ) {
-        if (index >= v->size() || index < 0) {
+        if (index >= v.size() || index < 0) {
             return false;
         }
-        v->at(index) = value;
+        v[index] = value;
         return true;
     }
 };
@@ -582,6 +589,62 @@ class_<std::vector<T>>& register_vector(const char* name) {
     ;
 }
 
+/*
+namespace internal {
+
+template<typename MapType>
+struct MapAccess {
+    static typename MapType::mapped_type get(
+        const MapType& m,
+        const typename MapType::key_type& k
+    ) {
+        auto i = m.find(k);
+        if (i == m.end()) {
+            throw std::out_of_range("index out of range");
+        } else {
+            return i->second;
+        }
+    }
+
+    static void set(
+        MapType& m,
+        const typename MapType::key_type& k,
+        const typename MapType::mapped_type& v
+    ) {
+        m[k] = v;
+    }
+
+    static std::vector<typename MapType::key_type> keys(
+        const MapType& m
+    ) {
+      std::vector<typename MapType::key_type> keys;
+      keys.reserve(m.size());
+      for (const auto& pair : m) {
+        keys.push_back(pair.first);
+      }
+      return keys;
+    }
+};
+
+} // end namespace internal
+
+
+ // TODO: need to fix
+template<typename K, typename V>
+class_<std::map<K, V>> register_map(const char* name) {
+    typedef std::map<K,V> MapType;
+
+    size_t (MapType::*size)() const = &MapType::size;
+    return class_<MapType>(name)
+        .template constructor<>()
+        .function("size", size)
+        .function("get", internal::MapAccess<MapType>::get)
+        .function("set", internal::MapAccess<MapType>::set)
+    // TODO: need to fix
+//        .function("keys", internal::MapAccess<MapType>::keys)
+        ;
+}
+ */
 
 } // namespace jsb
 

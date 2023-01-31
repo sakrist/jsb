@@ -35,9 +35,6 @@ struct FunctionDescriptor {
     std::string name;
     const char* signature;
     Configuration config = Configuration::Sync;
-//    bool is_static{ false };
-//    bool is_sync{ true };
-//    bool is_class{ false }; // assign function to the class, so first argument is
 };
 
 // JavaScript code generator

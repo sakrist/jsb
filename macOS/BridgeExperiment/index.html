@@ -18,9 +18,9 @@ function tester() {
   object1.setNumber(20);
   object1.setString("str");
   
-  //object1.setString2("hello");
-  //var result = object1.getString2();
-  //log(result + ' world!');
+  object1.setString2("hello");
+  var result = object1.getString2();
+  log(result + ' world!');
   
   object.copyFrom(object1);
   log('object.getNumber: ' + object.getNumber());
@@ -42,6 +42,19 @@ function tester() {
   
   log('vector get value at 1: ' + vec.get(1));
   vec.delete();
+  
+  
+  var strings = new VectorString();
+  
+  strings.push_back("one");
+  strings.push_back("two");
+  strings.push_back("3");
+  
+  log('vector strings size: ' + strings.size());
+  
+  log('vector strings gat(1): ' + strings.get(1));
+  
+  strings.delete();
   
 };
 window.tester = tester;

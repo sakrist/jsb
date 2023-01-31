@@ -32,18 +32,20 @@ struct compatible_type {
                                           || std::is_pointer_v<T>
                                           );
 };
-
 template<typename T>
 inline constexpr bool compatible_type_v = compatible_type<T>::value;
 
 #if __cplusplus < 202002L
 template <typename T>
 struct remove_cvref : std::remove_cv<std::remove_reference_t<T>> { };
-//struct remove_cvref : std::remove_cv<std::remove_reference_t<std::remove_pointer_t<T>>> { };
 template <class _Tp>
 using remove_cvref_t = typename remove_cvref<_Tp>::type;
 #endif
 
+template <typename _Tp>
+struct is_string : std::is_same<std::string, remove_cvref_t<_Tp>> { };
+template<typename T>
+inline constexpr bool is_string_v = is_string<T>::value;
 
 
 template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, int> = 0>
@@ -71,7 +73,7 @@ template <typename T, std::enable_if_t<std::is_reference_v<T> && !std::is_arithm
 JSB_ALWAYS_INLINE auto arg_converter(uintptr_t val) {
     using type = remove_cvref_t<T>;
     type* var = reinterpret_cast<type *>(val);
-    return std::forward<type>(*var);
+    return std::ref(*var);
 };
 
 
