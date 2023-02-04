@@ -169,6 +169,8 @@ JSB_ALWAYS_INLINE static void functionReturn(const MessageDescriptor& message, R
             ss << reinterpret_cast<uintptr_t>(value);
         } else if constexpr (std::is_same_v<R, std::string>) {
             ss << value;
+        } else if constexpr (std::is_class_v<R>) {
+            ss << &value;
         } else {
             ss << value;
         }
@@ -185,6 +187,8 @@ JSB_ALWAYS_INLINE static void functionReturn(const MessageDescriptor& message, R
         ss << "(\"" << message.callback_id << "\", ";
         if constexpr (std::is_pointer_v<R>) {
             ss << reinterpret_cast<uintptr_t>(value);
+        } else if constexpr (std::is_class_v<R>) {
+            ss << &value;
         } else {
             ss << value;
         }
@@ -213,11 +217,11 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
     
     FunctionInvoker(ReturnType (ClassType::*f)(Args...), FunctionDescriptor aDescriptor) : 
       FunctionInvokerBase(aDescriptor), _f(f) {
-        static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
+        static_assert(is_compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
     
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const val* args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const Argument* args) {
         
         using tupleArgs = std::tuple<Args...>;
         
@@ -259,11 +263,11 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public Functi
     
     FunctionInvoker(ReturnType (ClassType::*f)(Args...) const, FunctionDescriptor aDescriptor) :  
       FunctionInvokerBase(aDescriptor), _f(f) {
-        static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
+        static_assert(is_compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
       
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const val* args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(ClassType* object_, std::index_sequence<S...>, const Argument* args) {
         
         using tupleArgs = std::tuple<Args...>;
         
@@ -303,11 +307,11 @@ struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
     
     FunctionInvoker(ReturnType (*f)(Args...), FunctionDescriptor aDescriptor) : 
       FunctionInvokerBase(aDescriptor), _f(f) {
-        static_assert(compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
+//        static_assert(is_compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
     }
     
     template<std::size_t... S>
-    JSB_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const val* args) {
+    JSB_ALWAYS_INLINE ReturnType _invoke(std::index_sequence<S...>, const Argument* args) {
         
         // create a tuple of argument types
         using tupleArgs = std::tuple<Args...>;
@@ -574,6 +578,9 @@ struct VectorAccess {
 
 template<typename T>
 class_<std::vector<T>>& register_vector(const char* name) {
+    
+//    static_assert(is_compatible_type_v<T>, "incompatible vector type");
+    
     typedef std::vector<T> VecType;
 
     void (VecType::*push_back)(const T&) = &VecType::push_back;

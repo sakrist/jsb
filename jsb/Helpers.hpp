@@ -24,7 +24,7 @@ JSBridgeBindingInitializer_##name::JSBridgeBindingInitializer_##name()
 namespace jsb {
 
 template <typename T>
-struct compatible_type {
+struct is_compatible_type {
     inline static constexpr bool value = (std::is_arithmetic<T>::value
                                           || std::is_same_v<T, void>
                                           || std::is_same_v<T, uintptr_t>
@@ -33,7 +33,7 @@ struct compatible_type {
                                           );
 };
 template<typename T>
-inline constexpr bool compatible_type_v = compatible_type<T>::value;
+inline constexpr bool is_compatible_type_v = is_compatible_type<T>::value;
 
 #if __cplusplus < 202002L
 template <typename T>

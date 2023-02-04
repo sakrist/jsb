@@ -109,7 +109,7 @@ JSBridge_BINDINGS(my_module) {
     
     jsb::class_<TestJSBinding>("TestJSBinding")
     .constructor<>()
-    .smart_ptr<std::shared_ptr<TestJSBinding>>("TestJSBindingPtr")
+//    .smart_ptr<std::shared_ptr<TestJSBinding>>("TestJSBindingPtr")
     .function("setNumber", &TestJSBinding::setNumber)
     .function("setNumberf", &TestJSBinding::setNumberf)
     .function("setNumberd", &TestJSBinding::setNumberd)

@@ -38,7 +38,7 @@ TEST(class_Tests, simple_set_and_get) {
     message1.object = ptrObject;
     message1.class_id = "TestSimple";
     message1.function = "setNumber";
-    message1.args[0] = val(2);
+    message1.args[0] = Argument(2);
     Bridge::getInstance().recive(message1);
     
     MessageDescriptor message2;

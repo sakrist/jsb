@@ -1,10 +1,8 @@
 
 ## Project Description
 
-The idea of the project is to create an ability to control  C++ objects from JavaScript code. 
-Similar to what Emscripten provides to developers in their solution but with a limited feature set due memory access limitations. 
-
-Project is inspired by Emscripten's embind and later by Boost.Python.
+The idea of the project is to create the ability to control C++ objects from JavaScript code, similar to what Emscripten provides to developers but with a limited feature set due to memory access limitations. 
+The project is inspired by Emscripten's embind and later by Boost.Python.
 
 ## Samples
 
@@ -60,14 +58,14 @@ Essential:
 - [x] generate funcitons JavaScript code based on bindings
 - [x] delete function for a C++ class
 - [x] execute generated JavaScript code at registerCommunicator
-- [ ] val as wrapper around JS object - **in progress**
-- [ ] read JS function's arguments and pass to a C++ function - aka EM_JS
+- [ ] val as wrapper around JS object - **in progress** - not possible
+- [ ] EM_JS - read JS function's arguments and pass to a C++ function
 - [ ] bind perfect forwarding functions of a class ?? 
 - [ ] bind constructor with arguments of a class
 - [ ] bind property members of a class
 - [ ] implement typescript interafaces generator.
 - [ ] bind enums
-- [ ] bind vectors - **in progress**
+- [x] bind vectors
 
 Non-essential 
 
@@ -77,7 +75,7 @@ Non-essential
 - [ ] [Type conversion](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#built-in-type-conversions)
 - [ ] [Do performance testing and compare](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#performance)
 
-- [ ] EM_JS and EM_ASYNC_JS
+- [ ] EM_ASYNC_JS
 - [ ] simple EM_ASM
 
 

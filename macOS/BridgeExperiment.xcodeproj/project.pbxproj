@@ -84,7 +84,6 @@
 		D26E9EC327A1EE5B001C1EFD /* json.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = json.hpp; path = ../json.hpp; sourceTree = "<group>"; };
 		D26E9EC727A1EE79001C1EFD /* TestJSBinding.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = TestJSBinding.hpp; path = ../../tests/TestJSBinding.hpp; sourceTree = "<group>"; };
 		D26E9ECB27A1EF62001C1EFD /* functionsTests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = functionsTests.cpp; path = ../../tests/functionsTests.cpp; sourceTree = "<group>"; };
-		D26E9EF227A71985001C1EFD /* val.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = val.hpp; sourceTree = "<group>"; };
 		D28CDDD6277DD797009901AC /* BridgeExperiment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BridgeExperiment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D28CDDD9277DD797009901AC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D28CDDDA277DD797009901AC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -211,13 +210,12 @@
 		D26E9EAD27A1ECD2001C1EFD /* jsb */ = {
 			isa = PBXGroup;
 			children = (
-				D26E9EF227A71985001C1EFD /* val.hpp */,
-				D2A1F5C8298579FF00266AF4 /* Helpers.hpp */,
 				D26E9EB227A1ECD2001C1EFD /* Bridge.cpp */,
 				D26E9EB027A1ECD2001C1EFD /* Bridge.hpp */,
-				D2A1F5C62985797000266AF4 /* MessageDescriptor.hpp */,
 				D26E9EAE27A1ECD2001C1EFD /* CodeGenerator.cpp */,
 				D26E9EB127A1ECD2001C1EFD /* CodeGenerator.hpp */,
+				D2A1F5C8298579FF00266AF4 /* Helpers.hpp */,
+				D2A1F5C62985797000266AF4 /* MessageDescriptor.hpp */,
 				D26E9EAF27A1ECD2001C1EFD /* WKJSBridgeCommunicator.hpp */,
 				D26E9EB327A1ECD2001C1EFD /* WKJSBridgeCommunicator.mm */,
 			);
