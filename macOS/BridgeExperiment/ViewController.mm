@@ -79,6 +79,8 @@ using namespace jsb;
 }
 
 
+
+
 inline std::vector<int> *vecIntFromIntPointer(uintptr_t vec) {
   return reinterpret_cast<std::vector<int> *>(vec);
 }
@@ -90,7 +92,19 @@ public:
     }
 };
 
+void print_string() {
+    printf("print string \n");
+}
+
 int add_numbers(int a, int b) {
+    
+    bool hit = false;
+    std::string code = "(function foo() { JSBModule.print_string(); return \"1\";})()";
+    Bridge::eval(code.c_str(), [&hit](const char* msg){
+        printf("print string 2 \n");
+        hit = true;
+    });
+    
     return a+b;
 }
 
@@ -104,6 +118,7 @@ JSBridge_BINDINGS(my_module) {
     jsb::register_vector<std::string>("VectorString");
     
     function("add_numbers", &add_numbers);
+    function("print_string", &print_string);
     
     jsb::class_<TempClass>("TempClass").constructor<>();
     

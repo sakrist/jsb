@@ -4,6 +4,10 @@
 The idea of the project is to create the ability to control C++ objects from JavaScript code, similar to what Emscripten provides to developers but with a limited feature set due to memory access limitations. 
 The project is inspired by Emscripten's embind and later by Boost.Python.
 
+## NOTE
+
+**It is impossible to make multiple synchronous calls from JavaScript to C++ due to limitations imposed by the browser.** 
+
 ## Samples
 
 - [x] macOS - look in macOS directory

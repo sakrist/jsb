@@ -198,10 +198,9 @@ TEST(JSBridge_eval, async) {
     ASSERT_FALSE(hit);
 }
 
-// TODO: in progress
-//TEST(class_Tests, register_int_vector) {
-//    jsb::register_vector<int>("VectorInt");
-//}
+TEST(class_Tests, register_int_vector) {
+    jsb::register_vector<int>("Test_VectorInt");
+}
 
 
 //TEST(JSBridge_eval, return_object) {
@@ -210,5 +209,5 @@ TEST(JSBridge_eval, async) {
 //    Bridge::eval(code.c_str(), [&hit](const char* msg){
 //        hit = true;
 //    });
-//    
+//
 //}
