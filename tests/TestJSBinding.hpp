@@ -29,6 +29,14 @@ public:
         return i;
     }
     
+    std::shared_ptr<TestJSBinding> getObject() {
+        return std::make_shared<TestJSBinding>();
+    }
+    
+    void setObject(std::shared_ptr<TestJSBinding> obj) {
+        
+    }
+    
     void setNumber2(int newi, int newi2) {
         i = newi + newi2;
     }

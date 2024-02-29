@@ -31,10 +31,11 @@ struct FunctionDescriptor {
         Class = 1 << 3
     };
 
-    
     std::string name;
     const char* signature;
     Configuration config = Configuration::Sync;
+    
+    std::string returnType;
 };
 
 // JavaScript code generator

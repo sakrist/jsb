@@ -50,7 +50,7 @@ struct FunctionInvokerBase {
     FunctionInvokerBase(FunctionDescriptor aDescriptor) : descriptor(aDescriptor) {}
     virtual void invoke(const MessageDescriptor& message) {};
     virtual InvokerType getType() { return InvokerType::Function; };
-    const FunctionDescriptor descriptor;
+    FunctionDescriptor descriptor;
 };
 using InvokersMap = std::unordered_map<std::string, std::unique_ptr<FunctionInvokerBase>>;
 
@@ -129,6 +129,8 @@ public:
     InvokersMap invokers;
     ClassesMap classes;
     
+    std::map<std::string, std::string> typeToClass;
+    
 private:
     Bridge() {};
     friend class base_class_;
@@ -162,14 +164,69 @@ JSB_ALWAYS_INLINE inline static void functionVoid(const MessageDescriptor& messa
 template<typename R>
 JSB_ALWAYS_INLINE static void functionReturn(const MessageDescriptor& message, R&& value) {
     
+    using Rc = typename std::remove_cv_t<std::remove_reference_t<R>>;
+    
     if (message.completion) {
         std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
         
-        if constexpr (std::is_pointer_v<R>) {
+        if constexpr (std::is_pointer_v<Rc>) {
             ss << reinterpret_cast<uintptr_t>(value);
-        } else if constexpr (std::is_same_v<R, std::string>) {
+        } else if constexpr (std::is_same_v<Rc, std::string>) {
             ss << value;
-        } else if constexpr (std::is_class_v<R>) {
+        } else if constexpr (is_shared_v<Rc>) {
+            ss << reinterpret_cast<uintptr_t>(value.get());
+        } else if constexpr (is_vector_v<Rc>) {
+            
+            auto copy = new Rc(value.begin(), value.end());
+            ss << reinterpret_cast<uintptr_t>(copy);
+            
+            auto returnName = typeid(Rc).name();
+            auto types = Bridge::getInstance().typeToClass;
+            auto typeString = types.at(returnName);
+            if(typeString.empty()) {
+                throw std::logic_error("Return type not registered via bind.");
+            }
+            
+            /*
+            ss << "[";
+            
+            using ElementType = vector_element_type_t<Rc>;
+            
+            if constexpr (std::is_arithmetic_v<ElementType> || std::is_same_v<ElementType, std::string>) {
+                for (auto item : value) {
+                    ss << item << ",";
+                }
+            } else {
+                
+                
+                using ExtractedType = extract_type_t<ElementType>;
+                auto returnName = typeid(ExtractedType).name();
+                auto returnName2 = typeid(typeof(value)).name();
+                auto types = Bridge::getInstance().typeToClass;
+                auto typeString = types.at(returnName);
+                if(typeString.empty()) {
+                    throw std::logic_error("Return type not registered via bind.");
+                }
+                
+                for (auto item : value) {
+                    uintptr_t value = 0;
+                    if constexpr (is_shared_v<ElementType>) {
+                        value = reinterpret_cast<uintptr_t>(item.get());
+                    } else if constexpr (std::is_pointer_v<ElementType>) {
+                        value = reinterpret_cast<uintptr_t>(item);
+                    } else {
+                        throw std::logic_error("incompatible return type while converting to JS array.");
+                    }
+                    ss <<  "{ \"ptr\" : "  << value << "},";
+                }
+                
+            }
+            if (value.size() > 0) {
+                ss.seekp(-1, std::ios_base::end);
+            }
+            ss << "]";
+             */
+        } else if constexpr (std::is_class_v<Rc>) {
             ss << &value;
         } else {
             ss << value;
@@ -185,9 +242,9 @@ JSB_ALWAYS_INLINE static void functionReturn(const MessageDescriptor& message, R
         // async approach
         std::stringstream ss(message.callback, std::ios_base::app |std::ios_base::out);
         ss << "(\"" << message.callback_id << "\", ";
-        if constexpr (std::is_pointer_v<R>) {
+        if constexpr (std::is_pointer_v<Rc>) {
             ss << reinterpret_cast<uintptr_t>(value);
-        } else if constexpr (std::is_class_v<R>) {
+        } else if constexpr (std::is_class_v<Rc>) {
             ss << &value;
         } else {
             ss << value;
@@ -217,7 +274,18 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
     
     FunctionInvoker(ReturnType (ClassType::*f)(Args...), FunctionDescriptor aDescriptor) : 
       FunctionInvokerBase(aDescriptor), _f(f) {
-        static_assert(is_compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
+           
+          using ExtractedType = extract_type_t<ReturnType>;
+          auto returnName = typeid(ExtractedType).name();
+          
+          if(Bridge::getInstance().typeToClass.count(returnName) != 0) {
+              descriptor.returnType = Bridge::getInstance().typeToClass.at(returnName);
+          }
+          
+          // validate type on compatibility
+          using RTC = remove_cvref_t<ReturnType>;
+          using RT = typename std::conditional<is_vector_v<RTC>, vector_element_type_t<RTC>, RTC>::type;
+          static_assert(is_compatible_type_v<remove_cvref_t<RT>>, "incompatible return type");
     }
     
     template<std::size_t... S>
@@ -225,6 +293,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
         
         using tupleArgs = std::tuple<Args...>;
         
+        // read from inside out:
             // determine the type to use for argument conversion
           // convert each argument using the arg_converter and put result in a tuple
         // pass the converted arguments to the function and invoke it
@@ -263,7 +332,18 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public Functi
     
     FunctionInvoker(ReturnType (ClassType::*f)(Args...) const, FunctionDescriptor aDescriptor) :  
       FunctionInvokerBase(aDescriptor), _f(f) {
-        static_assert(is_compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
+          
+          using ExtractedType = extract_type_t<ReturnType>;
+          auto returnName = typeid(ExtractedType).name();
+          
+          if(Bridge::getInstance().typeToClass.count(returnName) != 0) {
+              descriptor.returnType = Bridge::getInstance().typeToClass.at(returnName);
+          }
+          
+          // validate type on compatibility
+          using RTC = remove_cvref_t<ReturnType>;
+          using RT = typename std::conditional<is_vector_v<RTC>, vector_element_type_t<RTC>, RTC>::type;
+          static_assert(is_compatible_type_v<remove_cvref_t<RT>>, "incompatible return type");
     }
       
     template<std::size_t... S>
@@ -307,7 +387,18 @@ struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
     
     FunctionInvoker(ReturnType (*f)(Args...), FunctionDescriptor aDescriptor) : 
       FunctionInvokerBase(aDescriptor), _f(f) {
-//        static_assert(is_compatible_type_v<remove_cvref_t<ReturnType>>, "incompatible return type");
+        
+          using ExtractedType = extract_type_t<ReturnType>;
+          auto returnName = typeid(ExtractedType).name();
+          
+          if(Bridge::getInstance().typeToClass.count(returnName) != 0) {
+              descriptor.returnType = Bridge::getInstance().typeToClass.at(returnName);
+          }
+          
+          // validate type on compatibility
+          using RTC = remove_cvref_t<ReturnType>;
+          using RT = typename std::conditional<is_vector_v<RTC>, vector_element_type_t<RTC>, RTC>::type;
+          static_assert(is_compatible_type_v<remove_cvref_t<RT>>, "incompatible return type");
     }
     
     template<std::size_t... S>
@@ -348,10 +439,93 @@ template<typename T>
 inline constexpr int args_count_v = FunctionInvoker<T>::args_count;
 
 
+////////////////////////////////////////////////////////////////////////////////
+// select_overload
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename Signature>
+Signature* select_overload(Signature* fn) {
+    return fn;
+}
+
+template<typename Signature, typename ClassType>
+auto select_overload(Signature (ClassType::*fn)) -> decltype(fn) {
+    return fn;
+}
 
 // MARK: - SignatureCode, SignatureString
 
 namespace internal {
+
+typedef const void* TYPEID;
+
+template<typename T>
+struct CanonicalizedID {
+    static char c;
+    static constexpr TYPEID get() {
+        return &c;
+    }
+};
+
+template<typename T>
+char CanonicalizedID<T>::c;
+
+template<typename T>
+struct Canonicalized {
+    typedef typename std::remove_cv<typename std::remove_reference<T>::type>::type type;
+};
+
+template<typename T>
+struct LightTypeID {
+    static constexpr TYPEID get() {
+#if __has_feature(cxx_rtti)
+            return &typeid(T);
+#else
+#error "Do something"
+#endif
+    }
+};
+
+template<typename T>
+constexpr TYPEID getLightTypeID(const T& value) {
+#if __has_feature(cxx_rtti)
+        return &typeid(value);
+#else
+#error "Do something"
+#endif
+}
+
+// The second typename is an unused stub so it's possible to
+// specialize groups of classes via SFINAE.
+template<typename T, typename = void>
+struct TypeID {
+    static constexpr TYPEID get() {
+        return LightTypeID<T>::get();
+    }
+};
+
+template<typename T>
+struct TypeID<std::unique_ptr<T>> {
+    static constexpr TYPEID get() {
+        return TypeID<T>::get();
+    }
+};
+
+
+template<typename T>
+struct AllowedRawPointer {
+};
+
+template<typename T>
+struct TypeID<AllowedRawPointer<T>> {
+    static constexpr TYPEID get() {
+        return LightTypeID<T*>::get();
+    }
+};
+
+
+
+
 
 template<typename T>
 struct SignatureCode {};
@@ -367,29 +541,32 @@ struct SignatureCode<uintptr_t> {
 template<>
 struct SignatureCode<int> {
     static constexpr char get() {
-        return 'i';
-    }
+        return 'i'; }
+};
+
+template<>
+struct SignatureCode<std::string> {
+    static constexpr char get() { return 's'; }
+};
+
+template<>
+struct SignatureCode<nullptr_t> {
+    static constexpr char get() { return 'N'; }
 };
 
 template<>
 struct SignatureCode<void> {
-    static constexpr char get() {
-        return 'v';
-    }
+    static constexpr char get() { return 'v'; }
 };
 
 template<>
 struct SignatureCode<float> {
-    static constexpr char get() {
-        return 'f';
-    }
+    static constexpr char get() { return 'f'; }
 };
 
 template<>
 struct SignatureCode<double> {
-    static constexpr char get() {
-        return 'd';
-    }
+    static constexpr char get() { return 'd'; }
 };
 
 template<typename... Args>
@@ -398,9 +575,16 @@ const char* getGenericSignature() {
     return signature;
 }
 
-template<typename T> struct SignatureTranslator { 
-    using type = typename std::conditional<std::is_pointer_v<T>, uintptr_t, int>::type; };
+template<typename T>
+struct SignatureTranslator {
+    using type = typename std::conditional<
+        (std::is_pointer_v<T> || is_shared_v<T>), uintptr_t, nullptr_t
+    >::type;
+};
+
 template<> struct SignatureTranslator<void> { using type = void; };
+template<> struct SignatureTranslator<int> { using type = int; };
+template<> struct SignatureTranslator<std::string> { using type = std::string; };
 template<> struct SignatureTranslator<float> { using type = float; };
 template<> struct SignatureTranslator<double> { using type = double; };
 
@@ -426,6 +610,17 @@ JSB_ALWAYS_INLINE const char* getSignature(Return (Class::*)(Args...)) {
 
 } // end namespace internal
 
+// allow all raw pointers
+struct allow_raw_pointers {
+    template<typename InputType, int Index>
+    struct Transform {
+        typedef typename std::conditional<
+            std::is_pointer<InputType>::value,
+            internal::AllowedRawPointer<typename std::remove_pointer<InputType>::type>,
+            InputType
+        >::type type;
+    };
+};
 
 // MARK: - Class
 
@@ -456,6 +651,9 @@ public:
         _this->_name = _name;
         Bridge::getInstance().classes[_name] = std::unique_ptr<class_<ClassType>>(_this);
         
+        auto type = typeid(ClassType).name();
+        Bridge::getInstance().typeToClass[type] = _name;
+        
         _private("dtor", &raw_destructor<ClassType>);
     }
     
@@ -466,8 +664,8 @@ public:
         return *this;
     }
     
-    template <typename Callable>
-    JSB_ALWAYS_INLINE class_& function(const char* fname, Callable callable) {
+    template <typename Callable, typename... Policies>
+    JSB_ALWAYS_INLINE class_& function(const char* fname, Callable callable, Policies...) {
         
         FunctionDescriptor::Configuration config = FunctionDescriptor::Configuration::Sync;
         if constexpr (!is_class_function<Callable>::value) {

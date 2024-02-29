@@ -7,54 +7,21 @@ function log(txt) {
 }
 
 function tester() {
-  var object = new TestJSBinding();
-  object.setNumber(10);
-  var value2 = object.getNumber();
-  log('new TestJSBinding getNumber should be 10 and it is: ' + value2);
-  var value3 = TestJSBinding.randomNumber(10);
-  log('new TestJSBinding randomNumber to 10: ' + value3);
   
+  var object = new TempClass();
+  object.initTmp();
+  var tmp = object.getObject();
+  
+  object.setObject(tmp);
+  var objects = object.getTemps();
+  
+  var numbers = object.getTemps2();
+  var num1 = numbers.get(1);
+  debugger;
   var object1 = new TestJSBinding();
-  object1.setNumber(20);
-  object1.setString("str");
-  
-  object1.setString2("hello");
-  var result = object1.getString2();
-  log(result + ' world!');
-  
-  object.copyFrom(object1);
-  log('object.getNumber: ' + object.getNumber());
-  
-  object.delete();
-  
-  log('add_numbers: ' + JSBModule.add_numbers(1, 4));
-  
-  var vec = new VectorInt();
-  vec.push_back(1);
-  vec.push_back(345);
-  vec.push_back(7);
-  vec.push_back(1324);
-  log('vector size: ' + vec.size());
-  
-  log('vector get value at 2: ' + vec.get(2));
-  
-  log('set value 1000 at 1 result:' + vec.set(1, 1000));
-  
-  log('vector get value at 1: ' + vec.get(1));
-  vec.delete();
-  
-  
-  var strings = new VectorString();
-  
-  strings.push_back("one");
-  strings.push_back("two");
-  strings.push_back("3");
-  
-  log('vector strings size: ' + strings.size());
-  
-  log('vector strings gat(1): ' + strings.get(1));
-  
-  strings.delete();
+   object1.setString("String from html page!");
+   object1.setString2("String 2 from html page!");
+ 
   
 };
 window.tester = tester;

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4FD530E22B90AED500086081 /* filesystem.js in Resources */ = {isa = PBXBuildFile; fileRef = 4FD530E12B90AED500086081 /* filesystem.js */; };
 		D26E9CC2278A34EA001C1EFD /* TestJSClassGenerator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */; };
 		D26E9E31278A3E7C001C1EFD /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = D26E9DAD278A3E7B001C1EFD /* README.md */; };
 		D26E9E48278A3E7C001C1EFD /* gtest-all.cc in Sources */ = {isa = PBXBuildFile; fileRef = D26E9DD7278A3E7C001C1EFD /* gtest-all.cc */; };
@@ -50,6 +51,7 @@
 
 /* Begin PBXFileReference section */
 		35F2FD3A277DDD2900344720 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		4FD530E12B90AED500086081 /* filesystem.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = filesystem.js; sourceTree = "<group>"; };
 		D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TestJSClassGenerator.cpp; path = ../../tests/TestJSClassGenerator.cpp; sourceTree = "<group>"; };
 		D26E9D9F278A3E7B001C1EFD /* gtest-matchers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-matchers.h"; sourceTree = "<group>"; };
 		D26E9DA0278A3E7B001C1EFD /* gtest-death-test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-death-test.h"; sourceTree = "<group>"; };
@@ -251,6 +253,7 @@
 			isa = PBXGroup;
 			children = (
 				D28CDE0F277DD8D4009901AC /* index.html */,
+				4FD530E12B90AED500086081 /* filesystem.js */,
 				D28CDDD9277DD797009901AC /* AppDelegate.h */,
 				D28CDDDA277DD797009901AC /* AppDelegate.m */,
 				D28CDDDC277DD797009901AC /* ViewController.h */,
@@ -400,6 +403,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D28CDE17277DD8D5009901AC /* index.html in Resources */,
+				4FD530E22B90AED500086081 /* filesystem.js in Resources */,
 				D28CDDE0277DD79F009901AC /* Assets.xcassets in Resources */,
 				D28CDDE3277DD79F009901AC /* Main.storyboard in Resources */,
 			);
@@ -608,11 +612,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
 				CODE_SIGN_IDENTITY = "-";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = DHKZ7WR43P;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -631,11 +635,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
 				CODE_SIGN_IDENTITY = "-";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = DHKZ7WR43P;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (

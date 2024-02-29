@@ -19,6 +19,18 @@
 namespace jsb {
 
 
+template <typename T>
+T convertStringToArithmetic(const std::string& str) {
+    std::istringstream iss(str);
+    T result;
+    
+    if (!(iss >> result)) {
+        throw std::invalid_argument("Invalid conversion from string to arithmetic type");
+    }
+    
+    return result;
+}
+
 class Argument {
 public:
     Argument() {}
@@ -33,16 +45,20 @@ public:
     
     template <typename T>
     T get() const {
-        return _object.get<T>();
-    }
-    
-    template <typename T>
-    T get() {
+        if (_object.is_string() && std::is_arithmetic_v<T>) {
+            auto o = _object.get<std::string>();
+            return convertStringToArithmetic<T>(o);
+        }
         return _object.get<T>();
     }
     
     std::string get() {
         return _object.get<std::string>();
+    }
+    
+    template <typename T, std::enable_if_t<is_shared_v<T>, int> = 0>
+    uintptr_t get() {
+        return _object.get<uintptr_t>();
     }
     
     template <typename T, std::enable_if_t<std::is_pointer_v<T>, int> = 0>

@@ -40,6 +40,7 @@ using namespace jsb;
     webview.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     webview.UIDelegate = self;
     webview.navigationDelegate = self;
+    webview.inspectable = YES;
     [self.view addSubview:webview];
 
     
@@ -87,8 +88,35 @@ inline std::vector<int> *vecIntFromIntPointer(uintptr_t vec) {
 
 class TempClass {
 public:
+    
+    std::shared_ptr<TempClass> tmp;
+    
     TempClass() {
         printf("TempClass constructor");
+    }
+    
+    void initTmp() {
+        tmp = std::make_shared<TempClass>();
+    }
+    
+    std::shared_ptr<TempClass> getObject() {
+        return tmp;
+    }
+    
+    TempClass* getObject2() {
+        return tmp.get();
+    }
+    
+    std::vector<std::shared_ptr<TempClass>> getTemps() {
+        return {tmp};
+    }
+    
+    std::vector<int> getTemps2() {
+        return {0, 1};
+    }
+    
+    void setObject(std::shared_ptr<TempClass> o) {
+        tmp = o;
     }
 };
 
@@ -116,27 +144,45 @@ JSBridge_BINDINGS(my_module) {
 //    jsb::register_map<std::string, int>("MapSi");
     
     jsb::register_vector<std::string>("VectorString");
+    jsb::register_vector<std::shared_ptr<TempClass>>("VectorTempClass");
     
-    function("add_numbers", &add_numbers);
-    function("print_string", &print_string);
+//
+//    function("add_numbers", &add_numbers);
+//    function("print_string", &print_string);
     
-    jsb::class_<TempClass>("TempClass").constructor<>();
+    jsb::class_<TempClass>("TempClass")
+        .constructor<>()
+//        .smart_ptr<std::shared_ptr<TempClass>>("TempClassPtr")
+    .function("initTmp", &TempClass::initTmp)
+    .function("getObject", &TempClass::getObject)
+    .function("getObject2", &TempClass::getObject2)
+    .function("getTemps", &TempClass::getTemps)
+    .function("getTemps2", &TempClass::getTemps2)
+    .function("setObject", &TempClass::setObject);
+    
     
     jsb::class_<TestJSBinding>("TestJSBinding")
     .constructor<>()
 //    .smart_ptr<std::shared_ptr<TestJSBinding>>("TestJSBindingPtr")
-    .function("setNumber", &TestJSBinding::setNumber)
-    .function("setNumberf", &TestJSBinding::setNumberf)
-    .function("setNumberd", &TestJSBinding::setNumberd)
-    .function("getNumber", &TestJSBinding::getNumber)
-    .function("const_func", &TestJSBinding::const_func)
-    .function("setString", &TestJSBinding::setString)
+//    .function("setNumber", &TestJSBinding::setNumber)
+//    .function("setNumberf", &TestJSBinding::setNumberf)
+//    .function("setNumberd", &TestJSBinding::setNumberd)
+//    .function("getNumber", &TestJSBinding::getNumber)
+//    .function("const_func", &TestJSBinding::const_func)
+//    .function("setString", &TestJSBinding::setString)
+    
+    
+    .function("setString", select_overload<void(TestJSBinding&, std::string)>(
+      [](TestJSBinding& self, std::string object) {
+          printf("select_overload test %s\n", object.c_str());
+      }))
+    
     .function("setString2", &setString2)
-    .function("getString2", &getString2)
+//    .function("getString2", &getString2)
     
 //    .function("setNumber2", &TestJSBinding::setNumber2)
 //    .function("voidPtr", &TestJSBinding::voidPtr)
-    .function("copyFrom", &TestJSBinding::copyFrom)
+//    .function("copyFrom", &TestJSBinding::copyFrom)
 //    .function("forward", &TestJSBinding::forward)
 //    .function("forwardf", &TestJSBinding::forwardf)
 //    .function("forwardd", &TestJSBinding::forwardd)

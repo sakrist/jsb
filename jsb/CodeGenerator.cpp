@@ -69,6 +69,8 @@ void CodeGenerator::classDeclaration(const std::string& moduleName,
 function TemplateJSBinding(ptrObject) {
     if (!ptrObject) {
         this.ptr = Number(JSBModule.getInstance().sync('{ "class" : "TemplateJSBinding", "function" : "ctor" }'));
+    } else {
+        this.ptr = Number(ptrObject);
     }
 }
 TemplateJSBinding._callback = function __callback__(key, value) {
@@ -77,6 +79,7 @@ TemplateJSBinding._callback = function __callback__(key, value) {
     if (resolve) { resolve(value); }
 };
 var _proto = TemplateJSBinding.prototype;
+
 _proto.delete = function _dtor() {
 JSBModule.getInstance().sync(JSON.stringify({ class : "TemplateJSBinding", function : "dtor", object : this.ptr, args : [this.ptr]}));};
 )";
@@ -87,7 +90,7 @@ JSBModule.getInstance().sync(JSON.stringify({ class : "TemplateJSBinding", funct
     
     // function declaraions
     for (const auto& [key, value] : invokers) {
-        ss << function(moduleName, className, value->descriptor) << "\n";
+        ss << function(moduleName, className, value->descriptor);
     }
     
     // class end
@@ -124,11 +127,11 @@ std::string CodeGenerator::function(const std::string& moduleName,
             ss << ",";
         }
     }
-    ss << "){";
+    ss << "){\n";
     
     if (!return_void) {
         if (desc.config & FunctionDescriptor::Configuration::Sync) {
-            ss << "return ";
+            ss << "var result = ";
         } else {
             ss << "var callid = " << moduleName << ".generateCallID(this.ptr);"
             "var p = new Promise(function(resolve){";
@@ -168,10 +171,18 @@ std::string CodeGenerator::function(const std::string& moduleName,
     if (!return_void && !(desc.config & FunctionDescriptor::Configuration::Sync)) {
         ss << ", callback : \""<< className <<" ._callback\", cid : callid })); return p;";
     } else {
-        ss << "}));";
+        ss << "}));\n";
+        if (!return_void) {
+            
+            if (!desc.returnType.empty()) {
+                ss << "result = new " << desc.returnType << "(result);\n";
+            }
+            
+            ss << "return result;\n";
+        }
     }
     
-    ss << "};";
+    ss << "};\n";
     
     return ss.str();
 }
