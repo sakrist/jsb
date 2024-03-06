@@ -62,7 +62,7 @@ public:
     virtual ~base_class_() = default;
 protected:
     friend class Bridge;
-    virtual void registerJS(const std::string& moduleName) = 0;
+    virtual void registerJS(const std::string& moduleName, const std::string& comName) = 0;
     InvokersMap _invokers;
 };
 using ClassesMap = std::unordered_map<std::string, std::unique_ptr<base_class_>>;
@@ -85,8 +85,14 @@ public:
         getInstance()._communicator->recive(message, std::forward<decltype(completion)>(completion));
     }
     
-    void setModuleName(std::string& name) {
+    // default window.Module
+    void setModuleName(std::string name) {
         _moduleName = name;
+    }
+    
+    // default _jsbc_ class
+    void setCommunicatorName(std::string name) {
+        _comName = name;
     }
     
     template <typename T, typename... Args>
@@ -98,13 +104,29 @@ public:
         _instance->_communicator = std::make_unique<T>(std::forward<Args>(args)...);
         
         const auto& moduleName = _instance->_moduleName;
-        CodeGenerator::registerBase(moduleName);
+        const auto& comName = _instance->_comName;
+        CodeGenerator::registerBase(moduleName, comName);
         for(const auto& [key, cls] : _instance->classes) {
-            cls->registerJS(moduleName);
+            
+            for(const auto& [k, inv] : cls->_invokers) {
+                if(Bridge::getInstance().typeToClass.count(inv->descriptor.returnType) != 0) {
+                    inv->descriptor.returnType = Bridge::getInstance().typeToClass.at(inv->descriptor.returnType);
+                } else {
+                    inv->descriptor.returnType = "";
+                }
+            }
+                
+            cls->registerJS(moduleName, comName);
         }
         
         for(const auto& [key, inv] : _instance->invokers) {
-            auto jscode = CodeGenerator::function(moduleName, moduleName, inv->descriptor);
+            
+            if(Bridge::getInstance().typeToClass.count(inv->descriptor.returnType) != 0) {
+                inv->descriptor.returnType = Bridge::getInstance().typeToClass.at(inv->descriptor.returnType);
+            } else {
+                inv->descriptor.returnType = "";
+            }
+            auto jscode = CodeGenerator::function(moduleName, comName, moduleName, inv->descriptor);
             _instance->eval(jscode.c_str());
         }
     }
@@ -138,7 +160,8 @@ private:
     inline static Bridge* _instance{ nullptr };
     static std::mutex _mutex;
     
-    std::string _moduleName{ "JSBModule" };
+    std::string _moduleName{ "Module" };
+    std::string _comName{ "_jsbc_" };
     
     JSB_ALWAYS_INLINE void _recive(const InvokersMap& invs, const MessageDescriptor& message) const noexcept(false) {
         auto invokerIt = invs.find(message.function);
@@ -186,46 +209,6 @@ JSB_ALWAYS_INLINE static void functionReturn(const MessageDescriptor& message, R
             if(typeString.empty()) {
                 throw std::logic_error("Return type not registered via bind.");
             }
-            
-            /*
-            ss << "[";
-            
-            using ElementType = vector_element_type_t<Rc>;
-            
-            if constexpr (std::is_arithmetic_v<ElementType> || std::is_same_v<ElementType, std::string>) {
-                for (auto item : value) {
-                    ss << item << ",";
-                }
-            } else {
-                
-                
-                using ExtractedType = extract_type_t<ElementType>;
-                auto returnName = typeid(ExtractedType).name();
-                auto returnName2 = typeid(typeof(value)).name();
-                auto types = Bridge::getInstance().typeToClass;
-                auto typeString = types.at(returnName);
-                if(typeString.empty()) {
-                    throw std::logic_error("Return type not registered via bind.");
-                }
-                
-                for (auto item : value) {
-                    uintptr_t value = 0;
-                    if constexpr (is_shared_v<ElementType>) {
-                        value = reinterpret_cast<uintptr_t>(item.get());
-                    } else if constexpr (std::is_pointer_v<ElementType>) {
-                        value = reinterpret_cast<uintptr_t>(item);
-                    } else {
-                        throw std::logic_error("incompatible return type while converting to JS array.");
-                    }
-                    ss <<  "{ \"ptr\" : "  << value << "},";
-                }
-                
-            }
-            if (value.size() > 0) {
-                ss.seekp(-1, std::ios_base::end);
-            }
-            ss << "]";
-             */
         } else if constexpr (std::is_class_v<Rc>) {
             ss << &value;
         } else {
@@ -278,9 +261,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...)> : public FunctionInvo
           using ExtractedType = extract_type_t<ReturnType>;
           auto returnName = typeid(ExtractedType).name();
           
-          if(Bridge::getInstance().typeToClass.count(returnName) != 0) {
-              descriptor.returnType = Bridge::getInstance().typeToClass.at(returnName);
-          }
+          descriptor.returnType = returnName;
           
           // validate type on compatibility
           using RTC = remove_cvref_t<ReturnType>;
@@ -336,9 +317,7 @@ struct FunctionInvoker<ReturnType (ClassType::*)(Args...) const> : public Functi
           using ExtractedType = extract_type_t<ReturnType>;
           auto returnName = typeid(ExtractedType).name();
           
-          if(Bridge::getInstance().typeToClass.count(returnName) != 0) {
-              descriptor.returnType = Bridge::getInstance().typeToClass.at(returnName);
-          }
+          descriptor.returnType = returnName;
           
           // validate type on compatibility
           using RTC = remove_cvref_t<ReturnType>;
@@ -391,9 +370,7 @@ struct FunctionInvoker<ReturnType (*)(Args...)> : public FunctionInvokerBase {
           using ExtractedType = extract_type_t<ReturnType>;
           auto returnName = typeid(ExtractedType).name();
           
-          if(Bridge::getInstance().typeToClass.count(returnName) != 0) {
-              descriptor.returnType = Bridge::getInstance().typeToClass.at(returnName);
-          }
+          descriptor.returnType = returnName;
           
           // validate type on compatibility
           using RTC = remove_cvref_t<ReturnType>;
@@ -660,7 +637,11 @@ public:
     template <typename T>
     JSB_ALWAYS_INLINE class_& smart_ptr(const char* name) {
         // TODO: impl
-        assert(0);
+//        assert(0);
+        
+        auto type = typeid(T).name();
+        Bridge::getInstance().typeToClass[type] = _name;
+        
         return *this;
     }
     
@@ -697,9 +678,9 @@ public:
         return _private("ctorc", callable, policies...);
     }
     
-    void registerJS(const std::string& moduleName) override {
-        if (_this) { _this->registerJS(moduleName); return; }
-        CodeGenerator::classDeclaration(moduleName, _name, _invokers);
+    void registerJS(const std::string& moduleName, const std::string& comName) override {
+        if (_this) { _this->registerJS(moduleName, comName); return; }
+        CodeGenerator::classDeclaration(moduleName, comName, _name, _invokers);
     }
     
 private:

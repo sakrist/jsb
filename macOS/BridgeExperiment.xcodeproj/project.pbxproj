@@ -51,6 +51,7 @@
 
 /* Begin PBXFileReference section */
 		35F2FD3A277DDD2900344720 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		4F0242792B9612A90083B22D /* filesystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = filesystem.hpp; sourceTree = "<group>"; };
 		4FD530E12B90AED500086081 /* filesystem.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = filesystem.js; sourceTree = "<group>"; };
 		D26E9CC0278A34EA001C1EFD /* TestJSClassGenerator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = TestJSClassGenerator.cpp; path = ../../tests/TestJSClassGenerator.cpp; sourceTree = "<group>"; };
 		D26E9D9F278A3E7B001C1EFD /* gtest-matchers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "gtest-matchers.h"; sourceTree = "<group>"; };
@@ -254,6 +255,7 @@
 			children = (
 				D28CDE0F277DD8D4009901AC /* index.html */,
 				4FD530E12B90AED500086081 /* filesystem.js */,
+				4F0242792B9612A90083B22D /* filesystem.hpp */,
 				D28CDDD9277DD797009901AC /* AppDelegate.h */,
 				D28CDDDA277DD797009901AC /* AppDelegate.m */,
 				D28CDDDC277DD797009901AC /* ViewController.h */,
@@ -612,11 +614,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
 				CODE_SIGN_IDENTITY = "-";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4EWJ52878E;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -635,11 +637,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = BridgeExperiment/BridgeExperiment.entitlements;
 				CODE_SIGN_IDENTITY = "-";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 4EWJ52878E;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = BridgeExperiment/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -659,7 +661,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = DHKZ7WR43P;
+				DEVELOPMENT_TEAM = 4EWJ52878E;
 				HEADER_SEARCH_PATHS = (
 					$SRCROOT/../gtest/googletest/include,
 					"$SRCROOT/../gtest/googletest/**",
@@ -685,7 +687,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = DHKZ7WR43P;
+				DEVELOPMENT_TEAM = 4EWJ52878E;
 				HEADER_SEARCH_PATHS = (
 					$SRCROOT/../gtest/googletest/include,
 					"$SRCROOT/../gtest/googletest/**",

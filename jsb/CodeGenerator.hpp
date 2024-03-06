@@ -41,14 +41,16 @@ struct FunctionDescriptor {
 // JavaScript code generator
 class CodeGenerator {
 public:
-    static void registerBase(const std::string& moduleName);
+    static void registerBase(const std::string& moduleName, const std::string& comName);
 
-    static void classDeclaration(const std::string& moduleName, 
-      const std::string& className, 
+    static void classDeclaration(const std::string& moduleName,
+      const std::string& comName,
+      const std::string& className,
       const InvokersMap& invokers);
 
-    static std::string function(const std::string& moduleName, 
-      const std::string& className, 
+    static std::string function(const std::string& moduleName,
+      const std::string& comName,
+      const std::string& className,
       const FunctionDescriptor& desc);
 };
 

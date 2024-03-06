@@ -17,19 +17,21 @@ bool operator&(T a, T b) {
 
 namespace jsb {
 
-void CodeGenerator::registerBase(const std::string& moduleName) {
+void CodeGenerator::registerBase(const std::string& moduleName,
+                                 const std::string& comName) {
     std::string moduleCode = R"(
-    var JSBModule = function () {
-      function JSBModule() {}
-      JSBModule.getInstance = function getInstance() {
-        if (!JSBModule.instance) {
-          JSBModule.instance = new JSBModule();
+    window.#Module# = {};
+    var #_jsbc_# = function () {
+      function #_jsbc_#() {}
+        #_jsbc_#.getInstance = function getInstance() {
+        if (!#_jsbc_#.instance) {
+            #_jsbc_#.instance = new #_jsbc_#();
         }
-        return JSBModule.instance;
+        return #_jsbc_#.instance;
       };
-      var _proto = JSBModule.prototype;
+      let _proto = #_jsbc_#.prototype;
       _proto.async = function async(message) {
-        window.webkit.messageHandlers.JSBModule.postMessage(message);
+        window.webkit.messageHandlers.#_jsbc_#.postMessage(message);
       };
 
       _proto.sync = function sync(message) {
@@ -41,66 +43,71 @@ void CodeGenerator::registerBase(const std::string& moduleName) {
         return undefined;
       };
 
-      JSBModule.generateCallID = function generateCallID(v) {
+      #_jsbc_#.generateCallID = function generateCallID(v) {
         return (v ? v : "0") + "_" + Date.now() + "_" + Math.floor(Math.random() * 10000);
       };
-      JSBModule._callback = function _callback(key, value) {
-        var resolve = JSBModule.promises.get(key);
-        JSBModule.promises["delete"](key);
+      #_jsbc_#._callback = function _callback(key, value) {
+        let resolve = #_jsbc_#.promises.get(key);
+        #_jsbc_#.promises["delete"](key);
         if (resolve) {
           resolve(value);
         }
       };
-      return JSBModule;
+      return #_jsbc_#;
     }();
-    JSBModule.promises = new Map();
+    #_jsbc_#.promises = new Map();
     )";
     
-    moduleCode = std::regex_replace(moduleCode, std::regex("JSBModule"), moduleName);
+    moduleCode = std::regex_replace(moduleCode, std::regex("#Module#"), moduleName);
+    moduleCode = std::regex_replace(moduleCode, std::regex("#_jsbc_#"), comName);
     
     jsb::Bridge::eval(moduleCode.c_str());
 }
 
 void CodeGenerator::classDeclaration(const std::string& moduleName, 
- const std::string& className, 
+ const std::string& comName,
+ const std::string& className,
  const InvokersMap& invokers) {
     
-    std::string class_start = R"(var TemplateJSBinding = function() {
-function TemplateJSBinding(ptrObject) {
+    std::string class_start = R"(window.#Module#.#TemplateClass# = function() {
+function #TemplateClass#(ptrObject) {
     if (!ptrObject) {
-        this.ptr = Number(JSBModule.getInstance().sync('{ "class" : "TemplateJSBinding", "function" : "ctor" }'));
+        this.ptr = Number(#_jsbc_#.getInstance().sync('{ "class" : "#TemplateClass#", "function" : "ctor" }'));
     } else {
         this.ptr = Number(ptrObject);
     }
 }
-TemplateJSBinding._callback = function __callback__(key, value) {
-    var resolve = TemplateJSBinding.promises.get(key);
-    TemplateJSBinding.promises["delete"](key);
+#TemplateClass#._callback = function __callback__(key, value) {
+    let resolve = window.#Module#.#TemplateClass#.promises.get(key);
+    window.#Module#.#TemplateClass#.promises["delete"](key);
     if (resolve) { resolve(value); }
 };
-var _proto = TemplateJSBinding.prototype;
+let _proto = #TemplateClass#.prototype;
 
 _proto.delete = function _dtor() {
-JSBModule.getInstance().sync(JSON.stringify({ class : "TemplateJSBinding", function : "dtor", object : this.ptr, args : [this.ptr]}));};
+    #_jsbc_#.getInstance().sync(JSON.stringify({ class : "#TemplateClass#", function : "dtor", object : this.ptr, args : [this.ptr]}));};
 )";
     
-    class_start = std::regex_replace(class_start, std::regex("TemplateJSBinding"), className);
-    class_start = std::regex_replace(class_start, std::regex("JSBModule"), moduleName);
+    class_start = std::regex_replace(class_start, std::regex("#TemplateClass#"), className);
+    class_start = std::regex_replace(class_start, std::regex("#Module#"), moduleName);
+    class_start = std::regex_replace(class_start, std::regex("#_jsbc_#"), comName);
     std::stringstream ss(class_start, std::ios_base::app |std::ios_base::out);
     
     // function declaraions
     for (const auto& [key, value] : invokers) {
-        ss << function(moduleName, className, value->descriptor);
+        ss << function(moduleName, comName, className, value->descriptor);
+        ss << "\n";
     }
     
     // class end
-    ss << "return " << className << "; }();" <<  className << ".promises = new Map();";
+    ss << "return " << className << "; }();\nwindow."<< moduleName <<"." <<  className << ".promises = new Map();";
     
     jsb::Bridge::eval(ss.str().c_str());
 }
 
-std::string CodeGenerator::function(const std::string& moduleName, 
-  const std::string& className, 
+std::string CodeGenerator::function(const std::string& moduleName,
+  const std::string& comName,
+  const std::string& className,
   const FunctionDescriptor& desc) {
     
     if (desc.name.empty()) {
@@ -127,19 +134,19 @@ std::string CodeGenerator::function(const std::string& moduleName,
             ss << ",";
         }
     }
-    ss << "){\n";
+    ss << "){";
     
     if (!return_void) {
         if (desc.config & FunctionDescriptor::Configuration::Sync) {
-            ss << "var result = ";
+            ss << "let r = ";
         } else {
-            ss << "var callid = " << moduleName << ".generateCallID(this.ptr);"
-            "var p = new Promise(function(resolve){";
+            ss << "let callid = " << comName << ".generateCallID(this.ptr);"
+            "let p = new Promise(function(resolve){";
             ss << className <<".promises.set(callid,resolve);});";
         }
     }
     
-    ss << moduleName;
+    ss << comName;
     ss << ((desc.config & FunctionDescriptor::Configuration::Sync) ? ".getInstance().sync(JSON.stringify({ class : \"" : ".getInstance().async(JSON.stringify({ class : \"");
     ss << ((className == moduleName) ? "" : className) << "\", function : \"" << desc.name << "\"";
     
@@ -157,7 +164,7 @@ std::string CodeGenerator::function(const std::string& moduleName,
         }
         for(; i < args_count; i++) {
             if (desc.signature[i+1] == 'p') {
-                ss << "v" << i << ".ptr";
+                ss << "(v"<<i<<" ? v"<<i<<".ptr : null)";
             } else {
                 ss << "v" << i;
             }
@@ -169,20 +176,20 @@ std::string CodeGenerator::function(const std::string& moduleName,
     }
     
     if (!return_void && !(desc.config & FunctionDescriptor::Configuration::Sync)) {
-        ss << ", callback : \""<< className <<" ._callback\", cid : callid })); return p;";
+        ss << ", callback : \""<< className <<"._callback\", cid : callid })); return p;";
     } else {
-        ss << "}));\n";
+        ss << "}));";
         if (!return_void) {
             
             if (!desc.returnType.empty()) {
-                ss << "result = new " << desc.returnType << "(result);\n";
+                ss << "r = new window."<< moduleName <<"." << desc.returnType << "(r);";
             }
             
-            ss << "return result;\n";
+            ss << "return r;";
         }
     }
     
-    ss << "};\n";
+    ss << "};";
     
     return ss.str();
 }

@@ -10,9 +10,9 @@ WKJSBridgeCommunicator::WKJSBridgeCommunicator(WKWebView *view) {
 }
 
 void WKJSBridgeCommunicator::eval(const char* js_code, std::function<void(const char*)>&& completion) const {
-#if DEBUG
+//#if DEBUG
     std::cout << "eval: " << js_code << std::endl;
-#endif
+//#endif
     NSString *string = [NSString stringWithCString:js_code encoding:NSUTF8StringEncoding];
     
     __block auto bcompletion = completion; 

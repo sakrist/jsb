@@ -35,7 +35,7 @@ class Argument {
 public:
     Argument() {}
     Argument(const nlohmann::json& object) : _object(object) {
-        assert(!object.is_null());
+//        assert(!object.is_null());
     }
     
     template<typename T>
@@ -48,6 +48,9 @@ public:
         if (_object.is_string() && std::is_arithmetic_v<T>) {
             auto o = _object.get<std::string>();
             return convertStringToArithmetic<T>(o);
+        }
+        if (_object.is_null()) {
+            return 0;
         }
         return _object.get<T>();
     }

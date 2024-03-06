@@ -8,7 +8,7 @@ function log(txt) {
 
 function tester() {
   
-  var object = new TempClass();
+  /* var object = new TempClass();
   object.initTmp();
   var tmp = object.getObject();
   
@@ -21,7 +21,19 @@ function tester() {
   var object1 = new TestJSBinding();
    object1.setString("String from html page!");
    object1.setString2("String 2 from html page!");
- 
+ */
+  window.FS.createPath("/offline", "new_test_f");
+  
+  log(window.FS.readdir("/offline/new_test_f"));
+  
+  window.FS.rename("/offline/new_test_f", "/offline/new_test_f2")
+  
+  const binaryData = new Uint8Array([72, 101, 108, 108, 111]);
+  window.FS.writeFile("/offline/new_test_f2/file.bin", binaryData);
+  
+  log(window.FS.readFile("/offline/hello.txt"));
+  
+  log(window.FS.analyzePath("/offline/new_test_f2").exists);
   
 };
 window.tester = tester;

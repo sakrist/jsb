@@ -12,6 +12,7 @@
 #include "WKJSBridgeCommunicator.hpp"
 #include "TestJSBinding.hpp"
 #include "CodeGenerator.hpp"
+#include "filesystem.hpp"
 
 //#include "em_js.h"
 
@@ -28,6 +29,9 @@ using namespace jsb;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+//    FilesystemJS::mounts["/"] = [[[NSBundle mainBundle] bundlePath] UTF8String];
+    FilesystemJS::mounts["/offline"] = [NSTemporaryDirectory() UTF8String];
     
     WKUserContentController *controller = [[WKUserContentController alloc] init];
     [controller addScriptMessageHandler:self name:@"JSBModule"];
@@ -53,6 +57,16 @@ using namespace jsb;
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
     jsb::Bridge::registerCommunicator<WKJSBridgeCommunicator>(webview);
+    
+//    NSString *filePath = [[NSBundle mainBundle] pathForResource:@"filesystem" ofType:@"js"];
+//    NSError *error = nil;
+//    NSString *jsCode = [NSString stringWithContentsOfFile:filePath encoding:NSUTF8StringEncoding error:&error];
+//    if (error) {
+//        NSLog(@"Error reading file: %@", error.localizedDescription);
+//        // Handle the error appropriately
+//    } else {
+//        jsb::Bridge::eval([jsCode UTF8String]);
+//    }
 }
 
 - (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message {
@@ -149,6 +163,15 @@ JSBridge_BINDINGS(my_module) {
 //
 //    function("add_numbers", &add_numbers);
 //    function("print_string", &print_string);
+    
+//    jsb::class_<FilesystemJS>("FilesystemJS")
+//        .class_function("createPath", &FilesystemJS::createPath)
+//        .class_function("readdir", &FilesystemJS::readdir)
+//        .class_function("rename", &FilesystemJS::rename)
+//        .class_function("writeFile", &FilesystemJS::writeFile)
+//        .class_function("readFile", &FilesystemJS::readFile)
+//        .class_function("remove", &FilesystemJS::remove)
+//        .class_function("analyzePath", &FilesystemJS::analyzePath);
     
     jsb::class_<TempClass>("TempClass")
         .constructor<>()
