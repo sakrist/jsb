@@ -11,14 +11,7 @@ namespace fs = std::filesystem;
 
 class FilesystemJS  {
 public:
-    
-    FilesystemJS() {
-        
-    }
-    
-    ~FilesystemJS() {
-        
-    }
+    FilesystemJS() = delete;
     
     static inline std::map<std::string, std::string> mounts;
     
